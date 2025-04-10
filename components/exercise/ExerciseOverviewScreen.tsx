@@ -1,42 +1,51 @@
 import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { logsTable } from '@/db/schema';
 import Colors from '@/constants/Colors';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import BorderRadius from '@/constants/Styles';
-import { router } from 'expo-router';
+import { getStats } from '@/scripts/exercise_stats';
+import { getTimeAgo } from '@/scripts/date';
+import { useEffect, useMemo, useState } from 'react';
 
-export default function ExerciseOverview() {
+
+type ExerciseOverviewScreenProps = {
+  logs: typeof logsTable.$inferSelect[]
+  name: string
+}
+
+export default function ExerciseOverview({ logs, name }: ExerciseOverviewScreenProps) {
+  const stats = useMemo(() => getStats(logs), [logs]);
+
   return (
     <ScrollView nestedScrollEnabled style={styles.container}>
 
       <View style={styles.card}>
-        <Text style={styles.title}>Bench press</Text>
+        <Text style={styles.title}>{name}</Text>
         <View style={styles.rowContainer}>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Last Log</Text>
-            <Text style={styles.value}>5 days ago</Text>
+            <Text style={styles.value}>{getTimeAgo(stats.latestDate)}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.rowItem}>
             <Text style={styles.label}>Last Set</Text>
-            <Text style={styles.value}>10 x 213 kg</Text>
+            <Text style={styles.value}>{stats.latestReps} x {stats.latestWeight} kg</Text>
           </View>
         </View>
       </View>
 
       <Text style={styles.sectionTitle}>Personal Records</Text>
       <View style={styles.listContainer}>
-        {renderRecord("Max Weight", "156 kg")}
-        {renderRecord("Max Reps", "13")}
-        {renderRecord("Day Volume", "2134 kg")}
-        {renderRecord("Estimated 1RM", "213 kg", true)}
+        {renderRecord("Max Weight", stats.maxWeight.toString())}
+        {renderRecord("Max Reps", stats.maxReps.toString())}
+        {renderRecord("Day Volume", stats.maxDayVolume.toString() + " kg")}
+        {renderRecord("Estimated 1RM", stats.estimated1RM.toString() + " kg", true)}
       </View>
 
       <Text style={styles.sectionTitle}>Lifetime Stats</Text>
       <View style={styles.listContainer}>
-        {renderRecord("Weight Lifted", "1564 kg")}
-        {renderRecord("Reps", "213")}
-        {renderRecord("Volume", "213344 kg")}
-        {renderRecord("Number of Logs", "213", true)}
+        {renderRecord("Weight Lifted", Math.round(stats.totalWeight) + " kg")}
+        {renderRecord("Reps", stats.totalReps.toString())}
+        {renderRecord("Number of Logs", stats.totalLogs.toString(), true)}
       </View>
       <View style={{ height: 30 }}></View>
     </ScrollView>
@@ -59,7 +68,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 500,
-    fontSize: 22,
+    fontSize: 20,
     color: Colors.gray[950],
   },
   card: {
@@ -70,7 +79,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     borderRadius: BorderRadius.largest,
-    marginTop: 5,
+    marginTop: 10,
     gap: 8,
   },
   rowItem: {
@@ -81,7 +90,7 @@ const styles = StyleSheet.create({
   label: {
     color: Colors.gray[750],
     fontSize: 15,
-    marginBottom: 3,
+    marginBottom: 5,
   },
   value: {
     color: Colors.gray[950],
@@ -97,8 +106,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: Colors.gray[650],
     fontWeight: '400',
-    fontSize: 17,
-    marginTop: 20,
+    fontSize: 18,
+    marginTop: 30,
     marginLeft: 5
   },
   listContainer: {
@@ -110,16 +119,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.gray[500],
-    paddingVertical: 15,
+    borderColor: Colors.gray[300],
+    paddingVertical: 17,
   },
   recordLabel: {
     color: Colors.gray[950],
     fontSize: 16,
   },
   recordValue: {
-    color: Colors.gray[950],
-    fontSize: 16,
-    fontWeight: 500,
+    color: Colors.gray[750],
+    fontSize: 17,
+    fontWeight: 400,
   },
 });

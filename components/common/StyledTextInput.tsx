@@ -14,8 +14,15 @@ type StyledTextInputProps = {
 export default function StyledTextInput({ value, onChangeText, placeholder }: StyledTextInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   return (
-    <View style={{ borderWidth: Number(isFocused) + 0, borderColor: isFocused ? Colors.gray[750] : Colors.gray[450], padding: 10 + Number(!isFocused), borderRadius: BorderRadius.largest }}>
+    <View style={{
+      borderWidth: Number(isFocused) + 0,
+      borderColor: isFocused ? Colors.gray[750] : Colors.gray[450],
+      paddingVertical: 10 + Number(!isFocused),
+      padding: 5 + Number(!isFocused),
+      borderRadius: BorderRadius.largest
+    }}>
       <TextInput
+        numberOfLines={1}
         style={[styles.input, { fontWeight: value ? '500' : '400' }]}
         keyboardType="numeric"
         placeholder={placeholder}
@@ -31,7 +38,6 @@ export default function StyledTextInput({ value, onChangeText, placeholder }: St
 
 const styles = StyleSheet.create({
   inputContainer: {
-    // flex: 1,
     borderWidth: 1,
     borderColor: Colors.blue[500],
     padding: 10,
@@ -40,8 +46,7 @@ const styles = StyleSheet.create({
   },
   input: {
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 18,
     color: Colors.gray[950],
-    fontWeight: "400",
   },
 })

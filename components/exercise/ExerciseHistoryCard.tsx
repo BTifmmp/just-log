@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
+import { logsTable } from '@/db/schema';
 
 type ExerciseLogProps = {
   setNumber: number,
@@ -27,29 +28,40 @@ function ExerciseLog({ setNumber, reps, weight, time }: ExerciseLogProps) {
 
 type HistoryExerciseProps = {
   name?: string
-  volume?: number
-  logsData?: { reps: number, weight: number, time: string }[]
+  volume?: string
+  logsData?: typeof logsTable.$inferSelect[];
 
 }
 
-export default function HistoryExercise({ name, volume = 0, logsData = [] }: HistoryExerciseProps) {
+export default React.memo(function HistoryExercise({ name, volume = '', logsData = [] }: HistoryExerciseProps) {
   return (
     <View style={styles.container}>
       <View>
         <Text style={styles.exerciseTitle}>{name}</Text>
         <Text style={styles.exerciseVolume}>Volume {volume} kg</Text>
       </View>
-      {logsData.map((log, index) => <View key={index} style={{
-        borderBottomWidth: index != logsData.length - 1 ? StyleSheet.hairlineWidth : 0,
-        borderBottomColor: Colors.gray[500],
-        marginHorizontal: 5
-
-      }}><ExerciseLog setNumber={index + 1} reps={log.reps} weight={log.weight} time={log.time} /></View>)}
+      {logsData.map((log, index) => {
+        const logDate = new Date(log.date);
+        return (
+          <View key={index} style={{
+            borderBottomWidth: index != logsData.length - 1 ? StyleSheet.hairlineWidth : 0,
+            borderBottomColor: Colors.gray[500],
+            marginHorizontal: 5
+          }}>
+            <ExerciseLog
+              setNumber={index + 1}
+              reps={log.reps}
+              weight={log.weight}
+              time={`${logDate.getHours().toString().padStart(2, '0')}:${logDate.getMinutes().toString().padStart(2, '0')}`}
+            />
+          </View>
+        )
+      })}
     </View>
 
   );
 }
-
+)
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,

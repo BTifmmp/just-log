@@ -1,6 +1,6 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native'
 import { useState, useEffect } from 'react'
-import { useNavigation, router } from 'expo-router';
+import { useNavigation, router, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import ExerciseOverviewScreen from '@/components/exercise/ExerciseOverviewScreen';
 import { Button } from 'react-native-paper';
@@ -8,14 +8,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import ExerciseChartsScreen from '@/components/exercise/ExerciseChartsScreen';
 import ExerciseHistoryScreen from '@/components/exercise/ExerciseHistoryScreen';
+import { useLiveTablesQuery } from '@/db/useLiveTablesQuery';
+import { fetchExercise, fetchLogsForExercise } from '@/db/queries';
+import { useDb } from '@/components/DBProvider';
 
-
-
-const renderScene = SceneMap({
-  overview: ExerciseOverviewScreen,
-  charts: ExerciseChartsScreen,
-  history: ExerciseHistoryScreen,
-});
 
 const routes = [
   { key: 'overview', title: 'Overview' },
@@ -25,28 +21,34 @@ const routes = [
 ];
 
 export default function Exercise() {
+  const { id, name } = useLocalSearchParams();
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
 
   const nav = useNavigation();
 
+  const { db } = useDb();
+  const exerciseRes = useLiveTablesQuery(fetchExercise(db, Number(id)), ['exercises']);
+  const logsRes = useLiveTablesQuery(fetchLogsForExercise(db, Number(id)), ['logs']);
+  const nameLoaded = name ? name : (exerciseRes.data.length > 0 ? exerciseRes.data[0].name : '');
+
   useEffect(() => {
     nav.setOptions({
       headerStyle: { borderBottomWidth: 0 },
-      title: 'Bench press (barbell)',
+      title: nameLoaded,
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <Button
             compact
-            onPressIn={() => { router.navigate({ pathname: '/log/exercise_log', params: { log_id: 'hi', name: 'Bench Press' } }); }}
-            labelStyle={{ color: Colors.blue[400], marginHorizontal: 10 }}
+            onPressIn={() => { router.navigate({ pathname: '/log/exercise_log', params: { exerciseId: id, name: nameLoaded } }); }}
+            labelStyle={{ color: Colors.blue[500], marginHorizontal: 10 }}
             rippleColor={Colors.addOpacity(Colors.blue[300], 0.3)}
           >Log
           </Button>
           <Button
             style={{ transform: [{ translateY: 2 }] }}
             onPressIn={() => { router.navigate('/log/exercise_log'); }}
-            labelStyle={{ color: Colors.blue[400] }}
+            labelStyle={{ color: Colors.blue[500] }}
             rippleColor={Colors.gray[200]}
             compact={true}
           ><Ionicons name="ellipsis-vertical" size={18} color={Colors.gray[950]} />
@@ -67,6 +69,18 @@ export default function Exercise() {
     />
   );
 
+  const renderScene = ({ route }: any) => {
+    switch (route.key) {
+      case 'overview':
+        return exerciseRes.data.length > 0 ? <ExerciseOverviewScreen logs={logsRes.data} name={exerciseRes.data[0].name} /> : undefined;
+      case 'charts':
+        return exerciseRes.data.length > 0 ? <ExerciseChartsScreen logs={logsRes.data} /> : undefined;
+      case 'history':
+        return exerciseRes.data.length > 0 ? <ExerciseHistoryScreen logs={logsRes.data} /> : undefined;
+      default:
+        return undefined;
+    }
+  };
 
   return (
     <TabView

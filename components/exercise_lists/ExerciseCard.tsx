@@ -2,26 +2,30 @@
 import { Image } from 'expo-image';
 import { Href, Link, router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { useState } from 'react'
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Button, Divider, Menu } from 'react-native-paper';
+import { Button } from 'react-native-paper';
+import { RelativePathString } from 'expo-router';
 
 
 type ExerciseCardProps = {
   title: string
   lastLog: string
   img: any
-  exerciseHref: string
+  exerciseId: any
 }
 
 
-export default function ExerciseCard({ title, lastLog, img, exerciseHref }: ExerciseCardProps) {
+export default function ExerciseCard({ title, lastLog, img, exerciseId }: ExerciseCardProps) {
   return (
     <View style={styles.card}>
       <View style={{ flexDirection: 'row', }} >
-        <Pressable onPress={() => { router.navigate(exerciseHref as Href) }} style={{ flex: 1 }}>
+        <Pressable onPress={() => {
+          router.navigate({
+            pathname: `/exercise/${exerciseId}` as RelativePathString,
+            params: { exerciseId: Number(exerciseId), name: title }
+          })
+        }} style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <Image source={img} style={styles.imageStyle} />
             <View>
@@ -35,7 +39,7 @@ export default function ExerciseCard({ title, lastLog, img, exerciseHref }: Exer
             mode='text'
             dark={true}
             style={{ borderRadius: BorderRadius.large, }}
-            onPress={() => { router.navigate({ pathname: '/log/exercise_log', params: { log_id: 'hi', name: 'Bench Press' } }); }}
+            onPress={() => { router.navigate({ pathname: '/log/exercise_log', params: { exerciseId: Number(exerciseId), name: title } }); }}
             labelStyle={{ color: Colors.blue[500], fontWeight: 400, fontFamily: 'sans-serif', marginHorizontal: 0, fontSize: 15 }}
             rippleColor={Colors.addOpacity(Colors.blue[300], 0.3)}
           >Log

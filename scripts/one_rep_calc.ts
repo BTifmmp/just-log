@@ -5,6 +5,11 @@ export type DistributionRow = {
   reps: number
 }
 
+export function calculateOneRepMax(reps: number, weight: number) {
+  return weight * (36 / (37 - reps));
+}
+
+
 export function calculateOneRepMaxArray(reps: number, weight: number, numberOfWeights: number, percentageStep: number) {
   const max = weight * (36 / (37 - reps))
   const getReps = (weight: number) => Number((37 - (36 * weight / max)).toFixed(1));

@@ -1,58 +1,98 @@
-import { StyleSheet, Text, ScrollView, View } from 'react-native'
-import { useState } from 'react'
-import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet, Text, View, Pressable } from 'react-native'
+import { useEffect, useState, useRef } from 'react'
+import { ScrollView } from 'react-native-gesture-handler';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import React from 'react'
 import LogsLineChart from '../charts/LogLineChart';
-import LogsBarChart from '../charts/LogBarChart';
+import { logsTable } from '@/db/schema';
+import { filterLogsByTimeFrame, groupLogsByDayWithMaxValues, reduceLogs } from '@/scripts/charts';
+import { formatUnixDate } from '@/scripts/date';
+import { calculateOneRepMax } from '@/scripts/one_rep_calc';
+
+type ExerciseOverviewScreenProps = {
+  logs: typeof logsTable.$inferSelect[]
+}
 
 
-export default function ExerciseChartsScreen() {
-  const { name } = useLocalSearchParams();
-  const [isPointerScrolled, setIsPointerScrolled] = useState(false);
+export default function ExerciseChartsScreen({ logs }: ExerciseOverviewScreenProps) {
+  const [dataMaxWeight, setDataMaxWeight] = useState<{ value: number, reps: number, date: string }[]>([]);
+  const [dataMaxReps, setDataMaxReps] = useState<{ value: number, weight: number, date: string }[]>([]);
+  const [dataEst1RM, setDataEst1RM] = useState<{ value: number, date: string }[]>([]);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'3m' | '6m' | '1y' | 'all'>('3m');
 
 
-  const data = [
-    { value: 80, label: 'Dec 20', labelTextStyle: { transform: [{ translateX: '55%' }], color: Colors.gray[750], fontSize: 12, fontWeight: 400 } }, { value: 70 }, { value: 90 }, { value: 100 }, { value: 70 }, { value: 80 }, { value: 50 }, { value: 90 }, { value: 95, label: 'Dec 20', labelTextStyle: { transform: [{ translateX: '-50%' }], color: Colors.gray[750], fontSize: 12, fontWeight: 400 } },
-  ];
-  const data2 = [
-    { value: 80, label: 'Dec 20', labelTextStyle: { color: Colors.gray[950], fontSize: 12, fontWeight: 400 } }, { value: 50 }, { value: 90 }, { value: 120 }, { value: 90 }, { value: 95, label: 'Dec 20', labelTextStyle: { color: Colors.gray[950], fontSize: 12, fontWeight: 400 } },
-  ];
-  const data3 = [
-    { value: 80, label: 'Dec 20', labelTextStyle: { transform: [{ translateX: '55%' }], color: Colors.gray[950], fontSize: 12, fontWeight: 400 } }, { value: 100 }, { value: 90 }, { value: 70 }, { value: 70 }, { value: 80 }, { value: 50 }, { value: 90 }, { value: 95, label: 'Dec 20', labelTextStyle: { transform: [{ translateX: '-50%' }], color: Colors.gray[950], fontSize: 12, fontWeight: 400 } },
-  ];
+  useEffect(() => {
+    const now = Date.now();
+    const filtered = filterLogsByTimeFrame(logs, selectedTimeframe).sort((a, b) => a.date - b.date);
+    const { maxWeightLogs, maxRepsLogs, max1RMLogs } = groupLogsByDayWithMaxValues(filtered);
+
+    const dataWeight = maxWeightLogs.map((item, index) =>
+    ({
+      value: item.weight,
+      reps: item.reps,
+      date: formatUnixDate(item.date, true),
+    }))
+    const dataReps = maxRepsLogs.map((item, index) =>
+    ({
+      value: item.reps,
+      weight: item.weight,
+      date: formatUnixDate(item.date, true),
+    }))
+    const data1RM = max1RMLogs.map((item, index) =>
+    ({
+      value: calculateOneRepMax(item.reps, item.weight),
+      date: formatUnixDate(item.date, true),
+    }))
+
+
+    setDataMaxWeight(dataWeight);
+    setDataMaxReps(dataReps);
+    setDataEst1RM(data1RM);
+
+  }, [logs, selectedTimeframe])
 
   return (
-    <ScrollView scrollEnabled={!isPointerScrolled} style={{ paddingHorizontal: 10, paddingTop: 15 }}>
+    <ScrollView ref={scrollViewRef} style={{ paddingHorizontal: 10, paddingTop: 15 }}>
       <View style={{ flexDirection: 'row', padding: 5, backgroundColor: Colors.addOpacity(Colors.blue[500], 0.25), borderRadius: BorderRadius.largest, marginBottom: 5 }}>
-        <View style={{ padding: 8, flex: 1, backgroundColor: Colors.blue[500], borderRadius: BorderRadius.largest }}>
-          <Text style={{ fontSize: 14, color: Colors.gray[950], textAlign: 'center', fontWeight: 400, }}>3M</Text>
-        </View>
-        <View style={{ padding: 8, flex: 1, borderRadius: BorderRadius.largest }}>
-          <Text style={{ fontSize: 14, color: Colors.gray[950], textAlign: 'center', fontWeight: 400 }}>6M</Text>
-        </View>
-        <View style={{ padding: 8, flex: 1, borderRadius: BorderRadius.largest }}>
-          <Text style={{ fontSize: 14, color: Colors.gray[950], textAlign: 'center', fontWeight: 400 }}>1Y</Text>
-        </View>
-        <View style={{ padding: 8, flex: 1, borderRadius: BorderRadius.largest }}>
-          <Text style={{ fontSize: 14, color: Colors.gray[950], textAlign: 'center', fontWeight: 400 }}>All</Text>
-        </View>
-      </View>
+        {['3m', '6m', '1y', 'all'].map((label) => {
+          const isSelected = selectedTimeframe === label;
 
+          return (
+            <Pressable
+              key={label}
+              onPress={() => setSelectedTimeframe(label as typeof selectedTimeframe)}
+              style={{
+                padding: 8,
+                flex: 1,
+                borderRadius: BorderRadius.largest,
+                backgroundColor: isSelected ? Colors.blue[500] : 'transparent',
+              }}
+            >
+              <Text style={{
+                fontSize: 14,
+                color: Colors.gray[950],
+                textAlign: 'center',
+                fontWeight: '400',
+              }}>
+                {label.toUpperCase()}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
       <LogsLineChart
         containerStyle={styles.chartContainer}
         titleStyle={{ marginBottom: 20, marginLeft: 5 }}
-        onPointerScrollEnd={() => { setIsPointerScrolled(false) }}
-        onPointerScrollStart={() => { setIsPointerScrolled(true) }}
-        data={data}
+        data={dataMaxWeight}
         title='Max Weight'
         dataDisplay={(item: any) =>
           <View style={{ marginBottom: 15 }}>
-            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right', marginRight: 5 }}>Jan 20</Text>
+            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right', marginRight: 5 }}>{item.date}</Text>
             <Text style={[{ fontWeight: 400, fontSize: 20, color: Colors.gray[950], textAlign: 'right', marginRight: 5 }]}>
               {item.value}
-              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>  12
+              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>  {item.reps}
               <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> reps</Text>
             </Text>
           </View>}
@@ -60,21 +100,19 @@ export default function ExerciseChartsScreen() {
       <LogsLineChart
         containerStyle={styles.chartContainer}
         titleStyle={{ marginBottom: 20, marginLeft: 5 }}
-        onPointerScrollEnd={() => { setIsPointerScrolled(false) }}
-        onPointerScrollStart={() => { setIsPointerScrolled(true) }}
-        data={data2}
+        data={dataMaxReps}
         title='Max Reps'
         dataDisplay={(item: any) =>
           <View style={{ marginBottom: 15 }}>
-            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right' }}>Jan 20</Text>
+            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right', marginRight: 5 }}>{item.date}</Text>
             <Text style={[{ fontWeight: 400, fontSize: 20, color: Colors.gray[950], textAlign: 'right', marginRight: 5 }]}>
               {item.value}
-              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>  12
-              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> reps</Text>
+              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> reps</Text>  {item.weight}
+              <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>
             </Text>
           </View>}
       />
-      <LogsBarChart
+      {/* <LogsBarChart
         containerStyle={styles.chartContainer}
         titleStyle={{ marginBottom: 20, marginLeft: 5 }}
         onPointerScrollEnd={() => { setIsPointerScrolled(false) }}
@@ -89,19 +127,17 @@ export default function ExerciseChartsScreen() {
               <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>
             </Text>
           </View>}
-      />
+      /> */}
       <LogsLineChart
         containerStyle={styles.chartContainer}
         titleStyle={{ marginBottom: 20, marginLeft: 5 }}
-        onPointerScrollEnd={() => { setIsPointerScrolled(false) }}
-        onPointerScrollStart={() => { setIsPointerScrolled(true) }}
-        data={data}
+        data={dataEst1RM}
         title='Estimated 1RM'
         dataDisplay={(item: any) =>
           <View style={{ marginBottom: 15 }}>
-            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right' }}>Jan 20</Text>
+            <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right', marginRight: 5 }}>{item.date}</Text>
             <Text style={[{ fontWeight: 400, fontSize: 20, color: Colors.gray[950], textAlign: 'right', marginRight: 5 }]}>
-              {item.value}
+              {item.value.toFixed(2)}
               <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>
             </Text>
           </View>}
