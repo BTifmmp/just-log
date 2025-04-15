@@ -58,8 +58,8 @@ export default function SpinnerMenuModal({ options, visible, onRequestClose, onS
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onRequestClose}>
       <GestureHandlerRootView>
         <View style={styles.backdrop}>
-          <Pressable onPress={onRequestClose} style={{ top: 0, left: 0, bottom: 0, right: 0, position: 'absolute' }} />
-          <View style={{ backgroundColor: Colors.gray[150], width: '100%', borderRadius: BorderRadius.largest }}>
+          <Pressable onPress={onRequestClose} style={StyleSheet.absoluteFillObject} />
+          <View style={{ backgroundColor: Colors.gray[150], width: '100%', borderRadius: BorderRadius.largest, maxWidth: 400 }}>
             <View style={{ alignItems: 'flex-end' }}>
               <IconButton onPress={onRequestClose} icon="close" size={20} style={{ margin: 10 }} />
             </View>
@@ -130,6 +130,5 @@ export default function SpinnerMenuModal({ options, visible, onRequestClose, onS
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 10 },
-  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 10 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
 });

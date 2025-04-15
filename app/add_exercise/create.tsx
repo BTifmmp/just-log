@@ -3,22 +3,49 @@ import React, { useState } from 'react';
 import Colors from '@/constants/Colors';
 import { TextInput, Button } from 'react-native-paper';
 import BorderRadius from '@/constants/Styles';
-import ImagePick from '@/components/create/ImagePick';
 import CategoryPick from '@/components/create/CategoryPick';
+import ErrorModal from '@/components/common/ErrorModal';
+import { createExercise } from '@/db/queries';
+import { useDb } from '@/components/DBProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { useSnackbar } from '@/components/common/PersistantSnackbarProvider';
+import { router } from 'expo-router';
 
 export default function Create() {
-  const [selectedImage, setSelectedImage] = useState<string>('')
+  const { db } = useDb();
   const [name, setName] = useState<string>('')
   const [category, setCategory] = useState<string>('')
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const { registerSnackbar, showSnackbar } = useSnackbar();
 
 
+  async function createExerciseCallback() {
+    try {
+      if (name != '' && category != '') {
+        const res = await createExercise(db, name, category)
+        if (res.changes == 0) {
+          setIsErrorVisible(true)
+        } else {
+          registerSnackbar('create_exercise_snack',
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15, marginRight: 10 }}>
+              <Ionicons name='checkmark-sharp' size={18} color={Colors.gray[50]} style={{ backgroundColor: 'rgb(58, 199, 88)', padding: 2, borderRadius: 99 }} />
+              <Text style={{ fontSize: 15, color: Colors.gray[950] }}>{`${name} created succesfully`}</Text>
+            </View>,
+            3000);
+          showSnackbar('create_exercise_snack')
+          router.back();
+        }
+      }
+    } catch {
+      setIsErrorVisible(true)
+    }
+
+  }
 
   return (
     <ScrollView style={{ paddingHorizontal: 15 }} contentContainerStyle={styles.contentContainer}>
+      <ErrorModal title='Error occured' message='An issue occurred while saving the data. Please try again.' visible={isErrorVisible} onClose={() => { setIsErrorVisible(false) }} />
       <View style={styles.formContainer}>
-        {/* Image */}
-        <Text style={styles.label}>Add Image</Text>
-        <ImagePick onImageSelect={(uri: string) => { }} />
         {/* Name */}
         <Text style={styles.label}>Name</Text>
         <TextInput
@@ -34,12 +61,12 @@ export default function Create() {
         />
         {/* Category */}
         <Text style={styles.label}>Category</Text>
-        <CategoryPick onCategoryChange={setCategory} categories={["Chest", "Legs", "Biceps", "Triceps", "Shoulders", "Abs & Core", "Full body", "Cardio"]} />
+        <CategoryPick onCategoryChange={setCategory} categories={["Chest", "Legs", "Biceps", "Triceps", "Shoulders", "Abs & Core", "Full body", "Other"]} />
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingBottom: 20 }}>
         <Button
-          onPress={() => { console.log({ name, category }) }}
+          onPress={createExerciseCallback}
           style={styles.createButton}
           rippleColor={Colors.blue[300]}
           labelStyle={styles.buttonLabel}

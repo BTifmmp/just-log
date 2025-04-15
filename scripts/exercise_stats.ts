@@ -28,7 +28,7 @@ export function getStats(logs: Log[]): ExerciseStats {
   let totalLogs = logs.length;
   let dailyVolumes: Record<string, number> = {};
 
-  let latestDate = 0;
+  let latestDate = -1;
   let latestWeight = 0;
   let latestReps = 0;
 

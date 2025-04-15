@@ -1,60 +1,153 @@
 import { StyleSheet, Text, View, } from 'react-native'
-import React, { useRef, ReactNode } from 'react'
+import React, { useState, useLayoutEffect, useEffect, useRef } from 'react'
 import Colors from '@/constants/Colors';
-import BorderRadius from '@/constants/Styles'
 import DayBox from '@/components/activity/DayBox';
+import { Ionicons } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
 import ActivityOverview from '@/components/activity/ActivityOverview';
 import ActivityExercise from '@/components/activity/ActivityExercise';
-
+import { useDb } from '@/components/DBProvider';
+import { scrollTo } from 'react-native-reanimated';
+import { useLiveTablesQuery } from '@/db/useLiveTablesQuery';
+import { fetchActivityByDay, fetchLogsForDay } from '@/db/queries';
+import { calculateTotalVolume, calculateWorkoutDuration, groupLogsByExercise, getDaysInMonth } from '@/scripts/activity';
+import { formatUnixDateHourMinute, getMonthUnixSpread } from '@/scripts/date';
+import { getCurrentDayStartMs } from '@/scripts/date';
+import { useDaySelection } from '@/components/activity/DaySelectionContext';
+import { useAnimatedRef } from 'react-native-reanimated';
+import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/component/ScrollView';
 
 export default function activity() {
-  const horizontalScroll = useRef(null)
+  const { selectedDay } = useDaySelection()
+  const { db } = useDb()
 
-  const logsData = [
-    { reps: 14, date: '12:76', weight: 100 },
-    { reps: 8, date: '12:76', weight: 80 },
-    { reps: 5, date: '12:76', weight: 75 },
-    { reps: 10, date: '12:76', weight: 120 },]
+  const [dayStartMs, setDayStartMs] = useState<number>(getCurrentDayStartMs()); // Initialize with current day's start
+  const [selectedDayIndex, setSelectedDayIndex] = useState(new Date(dayStartMs).getDate() - 1)
+  const scrollHorizRef = useAnimatedRef<AnimatedScrollView>();
+  useLayoutEffect(() => {
+    if (selectedDay) {
+      const newIndex = new Date(selectedDay).getDate() - 1
+      setDayStartMs(selectedDay);
+      setSelectedDayIndex(newIndex);
+      setScroll(newIndex * (55 + 8))
+    }
+  }, [selectedDay])
 
+  const setScroll = (val: number) => {
+    setTimeout(() => {
+      if (scrollHorizRef) {
+        scrollHorizRef.current?.scrollTo({ x: val, y: 0, animated: false })
+      }
+    }, 1)
+
+  }
+
+  const days = getDaysInMonth(new Date(dayStartMs));
+  const { start, end } = getMonthUnixSpread(new Date(dayStartMs))
+
+  const { data, error } = useLiveTablesQuery(fetchLogsForDay(db, dayStartMs), ['logs', 'exercises'], [dayStartMs]);
+  const { data: activity, error: activityError } = useLiveTablesQuery(fetchActivityByDay(db, start, end), ['logs', 'exercises'], [dayStartMs]);
+
+  const grouped = groupLogsByExercise(data); // Group logs by exercise
+  const workoutDuration = calculateWorkoutDuration(data); // Calculate workout duration
+  const totalVolume = calculateTotalVolume(data); // Calculate total volume
 
   return (
-    <ScrollView style={{ paddingHorizontal: 10 }}>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
+        <Text style={styles.selectedDayText}>{days[selectedDayIndex]?.day} {new Date(dayStartMs).getFullYear() != new Date().getFullYear() ? new Date(dayStartMs).getFullYear() : ''}</Text>
+        <ScrollView ref={scrollHorizRef} horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+          <View style={styles.dayRow} >
+            {days.map((day, index) => (
+              <DayBox
+                onLayout={index == days.length - 1 ? () => setScroll(selectedDayIndex * (55 + 8)) : undefined}
+                key={index}
+                onPress={() => { setSelectedDayIndex(index), setDayStartMs(day.startMs) }}
+                dayWeekName={day.weekday}
+                dayNumber={index + 1}
+                selected={selectedDayIndex == index}
+                hasActivity={activity.some((val: any) => (val.dayStart >= day.startMs && val.dayStart < day.startMs + 86400000))}
+              />
+            ))}
+          </View>
+        </ScrollView>
 
-      <Text style={{ fontWeight: 500, fontSize: 26, color: Colors.gray[950], marginTop: 15, marginBottom: 15, marginLeft: 5 }}>March 1st</Text>
-      <ScrollView ref={horizontalScroll} horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -15, marginBottom: 10 }} >
-        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 15 }}>
-          <DayBox onPress={() => { }} dayWeekName='WED' dayNumber={1} selected hasActivity />
-          <DayBox onPress={() => { }} dayWeekName='TUE' dayNumber={2} hasActivity />
-          <DayBox onPress={() => { }} dayWeekName='FRI' dayNumber={3} />
-          <DayBox onPress={() => { }} dayWeekName='SUN' dayNumber={4} />
-          <DayBox onPress={() => { }} dayWeekName='SAT' dayNumber={5} />
-          <DayBox onPress={() => { }} dayWeekName='WED' dayNumber={10} />
-          <DayBox onPress={() => { }} dayWeekName='TUE' dayNumber={12} hasActivity />
-          <DayBox onPress={() => { }} dayWeekName='FRI' dayNumber={13} />
-          <DayBox onPress={() => { }} dayWeekName='SUN' dayNumber={14} />
-          <DayBox onPress={() => { }} dayWeekName='SAT' dayNumber={15} />
-          <DayBox onPress={() => { }} dayWeekName='WED' dayNumber={1} />
-          <DayBox onPress={() => { }} dayWeekName='TUE' dayNumber={2} hasActivity />
-          <DayBox onPress={() => { }} dayWeekName='FRI' dayNumber={3} />
-          <DayBox onPress={() => { }} dayWeekName='SUN' dayNumber={4} />
-          <DayBox onPress={() => { }} dayWeekName='SAT' dayNumber={5} />
-          <DayBox onPress={() => { }} dayWeekName='WED' dayNumber={10} />
-          <DayBox onPress={() => { }} dayWeekName='TUE' dayNumber={12} hasActivity />
-          <DayBox onPress={() => { }} dayWeekName='FRI' dayNumber={13} />
-          <DayBox onPress={() => { }} dayWeekName='SUN' dayNumber={14} />
-          <DayBox onPress={() => { }} dayWeekName='SAT' dayNumber={15} />
-        </View>
+        {data.length > 0 ?
+          <>
+            <ActivityOverview key={totalVolume} volume={totalVolume} duration={workoutDuration} />
+            <Text style={styles.exercisesTitle}>Exercises</Text>
+            {grouped.map((item, index) =>
+              <ActivityExercise
+                key={index + item.volume}
+                volume={item.volume}
+                exerciseId={item.exerciseId ?? undefined}
+                name={item.exerciseName ?? 'Not found'}
+                logsData={item.logs.map((log: any) => ({
+                  time: formatUnixDateHourMinute(log.date),
+                  reps: log.reps,
+                  weight: log.weight
+                }))}
+              />
+            )}
+          </>
+          :
+          <View style={styles.noLogsContainer}>
+            <Ionicons name="clipboard-outline" size={64} color={Colors.gray[450]} />
+            <Text style={styles.noLogsTitle}>No logs</Text>
+            <Text style={styles.noLogsText}>
+              Looks like you have not logged any exercises for this day.
+            </Text>
+          </View>
+        }
+
+        <View style={{ height: 5 }} />
       </ScrollView>
-      <ActivityOverview />
-      <Text style={[{ color: Colors.gray[950], fontWeight: 500, fontSize: 16, marginTop: 30, marginBottom: 10, marginLeft: 5 }]}>Exercises</Text>
-      <ActivityExercise name='Bench press' logsData={[{ reps: 12, time: '12:65', weight: 100 }, { reps: 12, time: '12:65', weight: 100 }, { reps: 12, time: '12:65', weight: 100 }, { reps: 12, time: '12:65', weight: 100 }]} />
-      <ActivityExercise name='Shoulder press' logsData={[{ reps: 12, time: '12:65', weight: 100 }, { reps: 12, time: '12:65', weight: 100 }]} />
-      <View style={{ height: 5 }} />
-    </ScrollView >
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-
+  selectedDayText: {
+    fontWeight: '500',
+    fontSize: 26,
+    color: Colors.gray[950],
+    marginTop: 15,
+    marginBottom: 25,
+    marginLeft: 5
+  },
+  horizontalScroll: {
+    marginHorizontal: -15,
+    marginBottom: 20
+  },
+  dayRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 15
+  },
+  exercisesTitle: {
+    color: Colors.gray[950],
+    fontWeight: '500',
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 10,
+    marginLeft: 5
+  },
+  noLogsContainer: {
+    alignItems: 'center',
+    marginTop: 30
+  },
+  noLogsTitle: {
+    fontSize: 20,
+    color: Colors.gray[950],
+    textAlign: 'center',
+    marginBottom: 10,
+    marginTop: 15,
+    fontWeight: '500'
+  },
+  noLogsText: {
+    fontSize: 16,
+    color: Colors.gray[750],
+    textAlign: 'center',
+    width: '70%'
+  },
 });

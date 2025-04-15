@@ -11,7 +11,7 @@ export const logsTable = sqliteTable(
 },
   (table) => [
     index("date_idx").on(table.date),
-    index("exercise_id_idx").on(table.date),
+    index("exercise_id_idx").on(table.exerciseId),
   ]
 );
 

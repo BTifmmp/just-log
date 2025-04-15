@@ -23,12 +23,12 @@ export default function ExerciseOverview({ logs, name }: ExerciseOverviewScreenP
         <View style={styles.rowContainer}>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Last Log</Text>
-            <Text style={styles.value}>{getTimeAgo(stats.latestDate)}</Text>
+            <Text style={styles.value}>{stats.latestDate != -1 ? getTimeAgo(stats.latestDate) : 'no log'}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.rowItem}>
             <Text style={styles.label}>Last Set</Text>
-            <Text style={styles.value}>{stats.latestReps} x {stats.latestWeight} kg</Text>
+            <Text style={styles.value}>{logs.length > 0 ? `${stats.latestReps} x ${stats.latestWeight}kg` : 'no set'}</Text>
           </View>
         </View>
       </View>
@@ -37,7 +37,7 @@ export default function ExerciseOverview({ logs, name }: ExerciseOverviewScreenP
       <View style={styles.listContainer}>
         {renderRecord("Max Weight", stats.maxWeight.toString())}
         {renderRecord("Max Reps", stats.maxReps.toString())}
-        {renderRecord("Day Volume", stats.maxDayVolume.toString() + " kg")}
+        {renderRecord("Day Volume", stats.maxDayVolume.toFixed(1) + " kg")}
         {renderRecord("Estimated 1RM", stats.estimated1RM.toString() + " kg", true)}
       </View>
 

@@ -54,8 +54,8 @@ export default function ExerciseChartsScreen({ logs }: ExerciseOverviewScreenPro
   }, [logs, selectedTimeframe])
 
   return (
-    <ScrollView ref={scrollViewRef} style={{ paddingHorizontal: 10, paddingTop: 15 }}>
-      <View style={{ flexDirection: 'row', padding: 5, backgroundColor: Colors.addOpacity(Colors.blue[500], 0.25), borderRadius: BorderRadius.largest, marginBottom: 5 }}>
+    <View><ScrollView ref={scrollViewRef} style={{ paddingHorizontal: 10, paddingTop: 15 }}>
+      <View style={{ flexDirection: 'row', padding: 6, backgroundColor: Colors.gray[300], borderRadius: BorderRadius.largest, marginBottom: 5 }}>
         {['3m', '6m', '1y', 'all'].map((label) => {
           const isSelected = selectedTimeframe === label;
 
@@ -67,12 +67,12 @@ export default function ExerciseChartsScreen({ logs }: ExerciseOverviewScreenPro
                 padding: 8,
                 flex: 1,
                 borderRadius: BorderRadius.largest,
-                backgroundColor: isSelected ? Colors.blue[500] : 'transparent',
+                backgroundColor: isSelected ? Colors.gray[950] : 'transparent',
               }}
             >
               <Text style={{
                 fontSize: 14,
-                color: Colors.gray[950],
+                color: isSelected ? Colors.gray[50] : Colors.gray[950],
                 textAlign: 'center',
                 fontWeight: '400',
               }}>
@@ -137,13 +137,13 @@ export default function ExerciseChartsScreen({ logs }: ExerciseOverviewScreenPro
           <View style={{ marginBottom: 15 }}>
             <Text style={{ fontWeight: 400, fontSize: 15, color: Colors.gray[750], textAlign: 'right', marginRight: 5 }}>{item.date}</Text>
             <Text style={[{ fontWeight: 400, fontSize: 20, color: Colors.gray[950], textAlign: 'right', marginRight: 5 }]}>
-              {item.value.toFixed(2)}
+              {item.value.toFixed(1)}
               <Text style={{ fontWeight: 400, fontSize: 14, color: Colors.gray[750] }}> kg</Text>
             </Text>
           </View>}
       />
       <View style={{ height: 35 }}></View>
-    </ScrollView>
+    </ScrollView></View>
   )
 }
 

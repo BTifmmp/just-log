@@ -53,50 +53,47 @@ export default function ExerciseLog() {
   }
 
   return (
-    <BottomSheetModalProvider>
+    <ScrollView style={{ paddingTop: 15 }}>
+      <View style={{ paddingHorizontal: 10 }}>
+        <View style={styles.descriptionBox}>
+          <Text style={styles.descriptionText}>
+            The <Text style={styles.highlightedText}>Wilks Calculator</Text> evaluates strength performance relative to body weight, helping compare lifters of different sizes.
+          </Text>
+        </View>
 
-      <ScrollView style={{ paddingTop: 15 }}>
-        <View style={{ paddingHorizontal: 10 }}>
-          <View style={styles.descriptionBox}>
-            <Text style={styles.descriptionText}>
-              The <Text style={styles.highlightedText}>Wilks Calculator</Text> evaluates strength performance relative to body weight, helping compare lifters of different sizes.
-            </Text>
-          </View>
+        <WilksInputs
+          onBenchChange={setBenchPressWeight}
+          onSquatChange={setSqautWeight}
+          onDeadliftChange={setDeadliftWeight}
+          onBodyweightChange={setBodyWeight}
+          onTotalChange={setTotalWeight}
+          onMethodChange={setSelected}
+          onGenderChange={setGender}
+        />
 
-          <WilksInputs
-            onBenchChange={setBenchPressWeight}
-            onSquatChange={setSqautWeight}
-            onDeadliftChange={setDeadliftWeight}
-            onBodyweightChange={setBodyWeight}
-            onTotalChange={setTotalWeight}
-            onMethodChange={setSelected}
-            onGenderChange={setGender}
+        <Button
+          onPress={calculateScore}
+          style={styles.calcButton}
+          rippleColor={Colors.blue[300]}
+          labelStyle={styles.buttonLabel}
+        >Calculate
+        </Button>
+
+        {
+          scoreCardProps.score &&
+          <ScoreCard
+            {...scoreCardProps}
           />
 
-          <Button
-            onPress={calculateScore}
-            style={styles.calcButton}
-            rippleColor={Colors.blue[300]}
-            labelStyle={styles.buttonLabel}
-          >Calculate
-          </Button>
+        }
 
-          {
-            scoreCardProps.score &&
-            <ScoreCard
-              {...scoreCardProps}
-            />
-
-          }
-
-          <Text style={[{ fontSize: 16, fontWeight: 500, marginTop: scoreCardProps.score ? 20 : 60, color: Colors.gray[950], marginLeft: 5 }]}>
-            Standards
-          </Text>
-          <WilksStandards />
-        </View>
-        <View style={{ height: 40 }}></View>
-      </ScrollView >
-    </BottomSheetModalProvider>
+        <Text style={[{ fontSize: 16, fontWeight: 500, marginTop: scoreCardProps.score ? 20 : 60, color: Colors.gray[950], marginLeft: 5 }]}>
+          Standards
+        </Text>
+        <WilksStandards />
+      </View>
+      <View style={{ height: 40 }}></View>
+    </ScrollView >
 
   );
 }

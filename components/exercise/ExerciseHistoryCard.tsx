@@ -1,39 +1,55 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import { logsTable } from '@/db/schema';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 
 type ExerciseLogProps = {
   setNumber: number,
   reps: number,
   weight: number,
   time: string
+  id: number,
+  isSelected?: boolean,
+  onLongPress: (id: number) => void
 }
 
-function ExerciseLog({ setNumber, reps, weight, time }: ExerciseLogProps) {
+function ExerciseLog({ setNumber, reps, weight, time, id, onLongPress, isSelected = false }: ExerciseLogProps) {
+  const longPress = Gesture.LongPress().onStart(() => {
+    runOnJS(onLongPress)(id);
+    !isSelected && runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+  })
   return (
-    <View style={{ paddingHorizontal: 10 }}>
-      <View style={styles.logRow}>
-        <Text style={[{ color: Colors.gray[950], fontSize: 16, fontWeight: 400 }]}>
-          <Text style={{ fontWeight: 500 }}>{setNumber}</Text>     {reps}
-          <Text style={{ fontSize: 15, color: Colors.gray[650] }}> reps</Text>     {weight}
-          <Text style={{ fontSize: 15, color: Colors.gray[650] }}> kg</Text>
-        </Text>
-        <Text style={styles.timeText}>{time}</Text>
+    <GestureDetector gesture={longPress}>
+      <View style={{}}>
+        <View style={{ paddingVertical: 5 }}>
+          <View style={[styles.logRow, { backgroundColor: isSelected ? Colors.gray[300] : undefined }]}>
+            <Text style={[{ color: Colors.gray[950], fontSize: 16, fontWeight: 400 }]}>
+              <Text style={{ fontWeight: 500 }}>{setNumber}</Text>     {reps}
+              <Text style={{ fontSize: 15, color: Colors.gray[650] }}> reps</Text>     {weight}
+              <Text style={{ fontSize: 15, color: Colors.gray[650] }}> kg</Text>
+            </Text>
+            <Text style={styles.timeText}>{time}</Text>
+          </View>
+        </View>
       </View>
-    </View >
+    </GestureDetector>
   );
 }
 
 type HistoryExerciseProps = {
   name?: string
   volume?: string
-  logsData?: typeof logsTable.$inferSelect[];
+  logsData?: typeof logsTable.$inferSelect[]
+  selectedLogId?: number
+  onLogSelect: (id: number) => void
 
 }
 
-export default React.memo(function HistoryExercise({ name, volume = '', logsData = [] }: HistoryExerciseProps) {
+export default React.memo(function HistoryExercise({ name, volume = '', logsData = [], selectedLogId = undefined, onLogSelect }: HistoryExerciseProps) {
   return (
     <View style={styles.container}>
       <View>
@@ -53,6 +69,9 @@ export default React.memo(function HistoryExercise({ name, volume = '', logsData
               reps={log.reps}
               weight={log.weight}
               time={`${logDate.getHours().toString().padStart(2, '0')}:${logDate.getMinutes().toString().padStart(2, '0')}`}
+              onLongPress={onLogSelect}
+              isSelected={selectedLogId == log.id}
+              id={log.id}
             />
           </View>
         )
@@ -86,11 +105,12 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   logRow: {
-    // paddingHorizontal: 10,
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingVertical: 15,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.largest
   },
   logText: {
     color: Colors.gray[950],

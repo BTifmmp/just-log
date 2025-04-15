@@ -1,5 +1,5 @@
-import { StyleSheet, View, useWindowDimensions } from 'react-native'
-import { useState, useEffect } from 'react'
+import { StyleSheet, View, useWindowDimensions, Text, Pressable } from 'react-native'
+import { useState, useEffect, memo, useRef } from 'react'
 import { useNavigation, router, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import ExerciseOverviewScreen from '@/components/exercise/ExerciseOverviewScreen';
@@ -9,8 +9,12 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import ExerciseChartsScreen from '@/components/exercise/ExerciseChartsScreen';
 import ExerciseHistoryScreen from '@/components/exercise/ExerciseHistoryScreen';
 import { useLiveTablesQuery } from '@/db/useLiveTablesQuery';
-import { fetchExercise, fetchLogsForExercise } from '@/db/queries';
+import { addToTrackingList, deleteExercise, fetchExercise, fetchLogsForExercise, removeFromTrackingList } from '@/db/queries';
 import { useDb } from '@/components/DBProvider';
+import BorderRadius from '@/constants/Styles';
+import MenuBottomModal, { ModalMenuElement } from '@/components/common/MenuBottomModal';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import ErrorModal from '@/components/common/ErrorModal';
 
 
 const routes = [
@@ -20,10 +24,24 @@ const routes = [
 
 ];
 
+const MemoizedOverviewScreen = memo(({ logs, name }: { logs: any; name: string }) => {
+  return <ExerciseOverviewScreen logs={logs} name={name} />;
+});
+
+const MemoizedChartsScreen = memo(({ logs }: { logs: any }) => {
+  return <ExerciseChartsScreen logs={logs} />;
+});
+
+const MemoizedHistoryScreen = memo(({ logs }: { logs: any }) => {
+  return <ExerciseHistoryScreen logs={logs} />;
+});
+
 export default function Exercise() {
   const { id, name } = useLocalSearchParams();
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const modalRef = useRef<BottomSheetModal>(null);
 
   const nav = useNavigation();
 
@@ -31,13 +49,14 @@ export default function Exercise() {
   const exerciseRes = useLiveTablesQuery(fetchExercise(db, Number(id)), ['exercises']);
   const logsRes = useLiveTablesQuery(fetchLogsForExercise(db, Number(id)), ['logs']);
   const nameLoaded = name ? name : (exerciseRes.data.length > 0 ? exerciseRes.data[0].name : '');
+  const errorOccured = (exerciseRes.error && logsRes.error);
 
   useEffect(() => {
     nav.setOptions({
-      headerStyle: { borderBottomWidth: 0 },
+      headerStyle: { borderBottomWidth: !errorOccured ? 0 : StyleSheet.hairlineWidth },
       title: nameLoaded,
       headerRight: () => (
-        <View style={{ flexDirection: 'row' }}>
+        !errorOccured && <View style={{ flexDirection: 'row' }}>
           <Button
             compact
             onPressIn={() => { router.navigate({ pathname: '/log/exercise_log', params: { exerciseId: id, name: nameLoaded } }); }}
@@ -47,7 +66,7 @@ export default function Exercise() {
           </Button>
           <Button
             style={{ transform: [{ translateY: 2 }] }}
-            onPressIn={() => { router.navigate('/log/exercise_log'); }}
+            onPressIn={() => { modalRef.current?.present() }}
             labelStyle={{ color: Colors.blue[500] }}
             rippleColor={Colors.gray[200]}
             compact={true}
@@ -72,28 +91,99 @@ export default function Exercise() {
   const renderScene = ({ route }: any) => {
     switch (route.key) {
       case 'overview':
-        return exerciseRes.data.length > 0 ? <ExerciseOverviewScreen logs={logsRes.data} name={exerciseRes.data[0].name} /> : undefined;
+        return exerciseRes.data.length > 0 ? <MemoizedOverviewScreen logs={logsRes.data} name={exerciseRes.data[0].name} /> : undefined;
       case 'charts':
-        return exerciseRes.data.length > 0 ? <ExerciseChartsScreen logs={logsRes.data} /> : undefined;
+        return <MemoizedChartsScreen logs={logsRes.data} />;
       case 'history':
-        return exerciseRes.data.length > 0 ? <ExerciseHistoryScreen logs={logsRes.data} /> : undefined;
+        return <MemoizedHistoryScreen logs={logsRes.data} />;
       default:
-        return undefined;
+        return null;
     }
   };
 
+  async function onAddToTracked() {
+    try {
+      const res = addToTrackingList(db, Number(id))
+    } catch (e) {
+      setIsErrorVisible(true);
+    }
+
+  }
+
+  async function onRemoveFromTracked() {
+    try {
+      const res = removeFromTrackingList(db, Number(id))
+    } catch (e) {
+      setIsErrorVisible(true);
+    }
+  }
+
+  async function onDeleteExercise() {
+    try {
+      const res = deleteExercise(db, Number(id))
+      router.back()
+    } catch (e) {
+      setIsErrorVisible(true);
+    }
+  }
+
+
   return (
-    <TabView
-      swipeEnabled={false}
-      navigationState={{ index, routes }}
-      renderScene={renderScene}
-      onIndexChange={setIndex}
-      initialLayout={{ width: layout.width }}
-      renderTabBar={renderTabBar}
-    />
+    <View style={{ flex: 1 }}>
+      <View>
+        <ErrorModal title='Error occured' message='An issue occurred while updating the data. Please try again.' visible={isErrorVisible} onClose={() => { setIsErrorVisible(false) }} />
+      </View>
+
+      {!errorOccured ?
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: layout.width }}
+          renderTabBar={renderTabBar}
+        />
+        :
+        <View style={styles.container}>
+          <Ionicons name="warning-outline" size={40} color={Colors.red[400] || '#ff6b6b'} style={styles.icon} />
+          <Text style={styles.title}>Error occured</Text>
+          <Text style={styles.subtitle}>An issue occured while loading data.</Text>
+        </View>}
+
+      <MenuBottomModal
+        modalRef={modalRef}
+        elements={[
+          exerciseRes.data.length > 0 && exerciseRes.data[0].is_tracked && { label: 'Stop tracking', iconName: 'remove', onPress: onRemoveFromTracked },
+          exerciseRes.data.length > 0 && !exerciseRes.data[0].is_tracked && { label: 'Start tracking', iconName: 'add', onPress: onAddToTracked },
+          // exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { label: 'Edit', iconName: 'build-outline' },
+          exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { color: '#ff6b6b', label: 'Delete', iconName: 'trash-bin-outline', onPress: onDeleteExercise }
+        ].filter((item) => item != false) as ModalMenuElement[]} />
+
+    </View>
+
   );
 }
 
 
-
+const styles = StyleSheet.create({
+  container: {
+    margin: 10,
+    marginTop: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.gray[950],
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.gray[750],
+    textAlign: 'center',
+  },
+});
 

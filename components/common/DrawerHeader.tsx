@@ -14,11 +14,19 @@ export default function DrawerHeader({ layout, navigation, options, route, }: Dr
       <StatusBar style="light" />
       <View style={[styles.headerContainer, StyleSheet.flatten(options.headerStyle) as ViewStyle]}>
 
-        <Pressable onPress={navigation.openDrawer} style={styles.backButton}>
-          <Ionicons name="menu-outline" size={24} color={Colors.gray[950]} />
-        </Pressable>
-        <Text numberOfLines={1} style={[styles.headerTitle, StyleSheet.flatten(options.headerTitleStyle) as TextStyle]}>{title}</Text>
-        {options.headerRight ? options.headerRight({ canGoBack: false }) : undefined}
+        <View style={[styles.expand, styles.start]}>
+          <Pressable onPress={navigation.openDrawer} style={[styles.backButton]}>
+            <View style={{ width: 5 }}></View>
+            <Ionicons name="menu-outline" size={24} color={Colors.gray[950]} />
+          </Pressable>
+        </View>
+        <View style={{ justifyContent: 'center' }}>
+          <Text numberOfLines={1} style={[styles.headerTitle, StyleSheet.flatten(options.headerTitleStyle) as TextStyle]}>{title}</Text>
+        </View>
+
+        <View style={[styles.expand, styles.end]}>
+          {options.headerRight ? options.headerRight({ canGoBack: false }) : undefined}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -26,7 +34,7 @@ export default function DrawerHeader({ layout, navigation, options, route, }: Dr
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 60,
+    height: 56,
     backgroundColor: Colors.gray[50],
     flexDirection: 'row',
     alignItems: 'center',
@@ -39,10 +47,23 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    marginLeft: 10,
+    fontSize: 17,
     fontWeight: 400,
     color: Colors.gray[950],
+  },
+
+  expand: {
+    flexGrow: 1,
+    flexBasis: 0,
+  },
+  end: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  start: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 });

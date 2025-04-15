@@ -107,7 +107,7 @@ export default function ExercisePickHeader({ navigation, back, options, route, c
 const styles = StyleSheet.create({
   // Header styles
   headerContainer: {
-    height: 52,
+    height: 56,
     backgroundColor: Colors.gray[50],
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 17,
     marginLeft: 5,
     fontWeight: 400,
     color: Colors.gray[950],
@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
+    paddingTop: 5,
     paddingBottom: 15,
   },
 
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     flex: 2,
     height: 40,
     backgroundColor: Colors.gray[250],
-    borderRadius: BorderRadius.small,
+    borderRadius: BorderRadius.largest,
     paddingHorizontal: 10,
     color: Colors.gray[950],
     marginRight: 5
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
   categoryButton: {
     height: 40,
     flex: 1,
-    borderRadius: BorderRadius.small,
+    borderRadius: BorderRadius.largest,
     backgroundColor: Colors.gray[250],
   },
 
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 15, gap: 5
+    paddingLeft: 20, gap: 5
   },
 
   categoryText: {

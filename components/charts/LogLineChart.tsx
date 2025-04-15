@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 
 import { CartesianChart, Line, useChartPressState } from "victory-native";
 import { useFont } from '@shopify/react-native-skia';
+import { Gesture } from 'react-native-gesture-handler';
 import { runOnJS, SharedValue, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import { Circle, Line as LineSkia, vec } from '@shopify/react-native-skia';
 
@@ -19,8 +20,8 @@ type LogsBarChartProps = {
 }
 
 function ToolTip({ x, y, firstPointX }: { x: SharedValue<number>; y: SharedValue<number>; firstPointX: number; }) {
-  const p1 = useDerivedValue(() => vec(x.value > 0 ? x.value : firstPointX, 0), [x]);
-  const p2 = useDerivedValue(() => vec(x.value > 0 ? x.value : firstPointX, 250), [x]);
+  const p1 = useDerivedValue(() => vec(x.value > 0 ? x.value : firstPointX, 0));
+  const p2 = useDerivedValue(() => vec(x.value > 0 ? x.value : firstPointX, 250));
 
   return <LineSkia p1={p1} p2={p2} color={Colors.gray[750]} strokeWidth={1} />;
 }
@@ -34,6 +35,10 @@ export default function LogsBarChart({
 }: LogsBarChartProps) {
   const [lastValidIndexState, setLastValidIndex] = useState(0);
   const INIT_STATE = { x: 0, y: { value: 0 } };
+  const prevIndex = useSharedValue(-1);
+  const prevActive = useSharedValue(false);
+  const font = useFont(require('@/assets/fonts/SpaceMono-Regular.ttf'), 10);
+  const { state, isActive } = useChartPressState(INIT_STATE);
 
   useLayoutEffect(() => {
     state.x.position.value = -1;
@@ -41,16 +46,20 @@ export default function LogsBarChart({
     setLastValidIndex(0);
   }, [data])
 
-
-
-  const font = useFont(require('@/assets/fonts/SpaceMono-Regular.ttf'), 10);
-  const { state, isActive } = useChartPressState(INIT_STATE);
-
   useDerivedValue(() => {
-    if (state.matchedIndex.value != -1) {
+    if ((state.matchedIndex.value != -1 && prevIndex.value != state.matchedIndex.value) && prevActive.value) {
       runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+    }
+    if (state.isActive.value && !prevActive.value) {
+      runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
+    if (state.matchedIndex.value != -1) {
       runOnJS(setLastValidIndex)(Math.max(0, state.matchedIndex.value));
     }
+
+    prevActive.value = state.isActive.value;
+    prevIndex.value = state.matchedIndex.value
   }, [state])
 
   return (
@@ -93,10 +102,10 @@ export default function LogsBarChart({
               >
                 {({ points }) => {
                   return (
-                    <>
+                    <View>
                       <Line points={points.value} color={Colors.blue[500]} strokeWidth={2} strokeCap={'round'} strokeJoin={'bevel'} />
                       <ToolTip x={state.x.position} y={state.y.value.position} firstPointX={points.value[0].x} />
-                    </>)
+                    </View>)
                 }}
               </CartesianChart>
             </View>
@@ -113,55 +122,3 @@ export default function LogsBarChart({
     </View >
   )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/* <LineChart
-          curved
-          disableScroll
-          curvature={0.02}
-          yAxisOffset={0}
-          height={200}
-          hideDataPoints
-          color={Colors.blue[500]}
-          yAxisColor='transparent'
-          xAxisColor={Colors.gray[500]}
-          yAxisThickness={0}
-          xAxisThickness={1}
-          hideOrigin
-          onlyPositive
-          thickness={2}
-          xAxisType='solid'
-          yAxisTextStyle={{ color: Colors.gray[750], fontSize: 10, transform: [{ translateX: 0 }] }}
-          data={data}
-          rulesColor="#ccccff30"
-          rulesType='solid'
-          width={chartParentWidth}
-          yAxisLabelWidth={25}
-          noOfSections={4}
-          spacing={chartParentWidth / (data.length - 1) - 16 / (data.length - 1)}
-          initialSpacing={10}
-          endSpacing={10}
-          getPointerProps={pointerProps}
-          xAxisLabelsHeight={0}
-
-          pointerConfig={{
-            hidePointers: true,
-            pointerStripColor: Colors.gray[750],
-            strokeDashArray: [100, 0],
-            pointerColor: Colors.blue[400],
-            initialPointerIndex: initialIndex.current,
-            resetPointerIndexOnRelease: true,
-            persistPointer: true,
-          }}
-        /> */}

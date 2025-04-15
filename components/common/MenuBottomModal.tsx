@@ -4,10 +4,12 @@ import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/
 import { TouchableRipple } from 'react-native-paper'
 import Colors from '@/constants/Colors'
 import BorderRadius from '@/constants/Styles'
+import { Ionicons } from '@expo/vector-icons'
 
-type ModalMenuElement = {
+export type ModalMenuElement = {
   iconName?: string
   label: string
+  color?: string
   onPress?: () => void
 }
 
@@ -55,9 +57,12 @@ export default function MenuBottomModal({ modalRef, elements = [] }: MenuBottomM
                     modalRef?.current?.close()
                   }}
                   rippleColor={Colors.gray[400]}
-                  style={[styles.touchableRipple, borderRadiusStyle]}
+                  style={[styles.touchableRipple, borderRadiusStyle, item.color && { color: item.color }]}
                 >
-                  <Text style={styles.label}>{item.label}</Text>
+                  <View style={{ flexDirection: 'row', gap: 15, alignItems: 'center' }}>
+                    {item.iconName && <Ionicons name={item.iconName as any} size={18} style={{ color: item.color ? item.color : Colors.gray[950] }} />}
+                    <Text style={[styles.label, item.color && { color: item.color }]}>{item.label}</Text>
+                  </View>
                 </TouchableRipple>
               </View>
 
@@ -73,8 +78,8 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
     padding: 15,
-    paddingVertical: 20,
-    paddingBottom: 40,
+    paddingVertical: 15,
+    paddingBottom: 20,
     backgroundColor: Colors.gray[150],
   },
 
@@ -96,7 +101,7 @@ const styles = StyleSheet.create({
   },
 
   touchableRipple: {
-    height: 60,
+    paddingVertical: 15,
     overflow: 'hidden',
     backgroundColor: Colors.gray[250],
     justifyContent: 'center',

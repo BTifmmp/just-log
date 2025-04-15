@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1743950178587,
-      "tag": "0000_wise_clea",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1743952314162,
-      "tag": "0001_seed_exercises",
+      "when": 1744647704030,
+      "tag": "0000_wild_solo",
       "breakpoints": true
     }
   ]

@@ -11,11 +11,13 @@ type DayBoxProps = {
   hasActivity?: boolean
   selected?: boolean
   onPress?: () => void
+  onLayout?: () => void
 }
 
-export default function DayBox({ dayNumber, dayWeekName, hasActivity = false, selected = false, onPress }: DayBoxProps) {
+export default function DayBox({ dayNumber, dayWeekName, hasActivity = false, selected = false, onPress, onLayout }: DayBoxProps) {
   return (
-    <View style={{ alignItems: 'center' }}>
+
+    <View onLayout={onLayout} style={{ alignItems: 'center' }}>
       <View style={styles.wrapper}>
         <TouchableRipple style={[styles.container, { borderColor: selected ? Colors.blue[500] : Colors.gray[150] }]} onPress={onPress}>
           <View style={styles.content}>

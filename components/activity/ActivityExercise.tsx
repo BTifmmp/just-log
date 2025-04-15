@@ -3,6 +3,8 @@ import React from 'react';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import { router } from 'expo-router';
+import { RelativePathString } from 'expo-router';
+import Animated, { FadeOutRight, FadeInLeft } from 'react-native-reanimated';
 
 type ExerciseLogProps = {
   setNumber: number,
@@ -30,17 +32,24 @@ type ActivityExerciseProps = {
   name?: string
   volume?: number
   logsData?: { reps: number, weight: number, time: string }[]
+  exerciseId: number | undefined
 
 }
 
-export default function ActivityExercise({ name, volume = 0, logsData = [] }: ActivityExerciseProps) {
+export default function ActivityExercise({ name, volume = 0, logsData = [], exerciseId }: ActivityExerciseProps) {
   return (
-    <View style={styles.container}>
+    <Animated.View style={styles.container} entering={FadeInLeft.duration(150)} exiting={FadeOutRight.duration(150)}>
       <View>
-        <Pressable onPress={() => { router.navigate("/exercise/bench") }}>
+        <Pressable onPress={() => {
+          if (exerciseId !== undefined)
+            router.navigate({
+              pathname: `/exercise/${exerciseId}` as RelativePathString,
+              params: { exerciseId: Number(exerciseId), name: name }
+            })
+        }}>
           <Text style={styles.exerciseTitle}>{name}</Text>
         </Pressable>
-        <Text style={styles.exerciseVolume}>Volume {volume} kg</Text>
+        <Text style={styles.exerciseVolume}>Volume {volume.toFixed(1)} kg</Text>
       </View>
       {
         logsData.map((log, index) => <View key={index} style={{
@@ -50,7 +59,7 @@ export default function ActivityExercise({ name, volume = 0, logsData = [] }: Ac
 
         }}><ExerciseLog setNumber={index + 1} reps={log.reps} weight={log.weight} time={log.time} /></View>)
       }
-    </View >
+    </Animated.View >
 
   );
 }
@@ -65,7 +74,7 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     color: Colors.blue[500],
     fontWeight: 400,
-    fontSize: 17,
+    fontSize: 18,
     marginBottom: -8,
     marginLeft: 5,
     marginTop: 5

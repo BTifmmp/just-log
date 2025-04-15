@@ -4,31 +4,41 @@ import Colors from '@/constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { IconButton } from 'react-native-paper';
 import { Link, RelativePathString } from 'expo-router';
+import { router } from 'expo-router';
+import { Pressable } from 'react-native';
 
 type PickCardProps = {
   title: string
   imgSrc: string
-  exerciseHref?: string
-  onAdd?: () => void
+  id: number
+  isTracked: boolean
+  onActionPress?: () => void
 }
 
 
-export default function PickCard({ title, imgSrc, exerciseHref = "/", onAdd }: PickCardProps) {
+export default function PickCard({ title, imgSrc, id, onActionPress, isTracked }: PickCardProps) {
   return (
     <View style={styles.card}>
-      <Link href={exerciseHref as RelativePathString} style={{ flex: 0 }}>
+      <Pressable onPress={() => {
+        router.navigate({
+          pathname: `/exercise/${id}` as RelativePathString,
+          params: { exerciseId: Number(id), name: title }
+        })
+      }} style={{ flex: 0 }}>
         <View style={{ flex: 1, flexDirection: 'row', gap: 15, alignItems: 'center' }}>
           <Image source={imgSrc} style={styles.image} />
           <Text style={styles.cardText}>{title}</Text>
         </View>
-      </Link>
+      </Pressable>
       <IconButton
-        onPress={onAdd}
-        style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: -5, }}
-        size={30}
-        rippleColor={Colors.addOpacity(Colors.blue[300], 0.3)}
+        onPress={onActionPress}
+        style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: -5, borderWidth: 1, borderColor: Colors.gray[250], borderRadius: 999 }}
+        size={18}
+        rippleColor={Colors.gray[300]}
         icon={() =>
-          <Ionicons name="add" size={26} color={Colors.blue[500]} />
+          !isTracked ?
+            <Ionicons name="add" size={18} color={Colors.gray[750]} />
+            : <Ionicons name="remove" size={18} color={'#ff6b6b'} />
         }
       >
       </IconButton>
@@ -48,7 +58,7 @@ const styles = StyleSheet.create({
 
   cardText: {
     color: Colors.gray[950],
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 400,
   },
 

@@ -2,27 +2,29 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles'
-import { LinearGradient } from 'expo-linear-gradient';
+import { formatDurationHourMinute } from '@/scripts/date';
+import Animated, { FadeOutRight, FadeInLeft } from 'react-native-reanimated';
+
 
 
 type ActivityOverviewProps = {
   volume?: number
-  durationInSeconds?: number
+  duration?: number
 }
 
-export default function ActivityOverview({ volume = 0, durationInSeconds = 0 }: ActivityOverviewProps) {
+export default function ActivityOverview({ volume = 0, duration = 0 }: ActivityOverviewProps) {
   return (
-    <View style={styles.container}>
+    <Animated.View style={styles.container} entering={FadeInLeft.duration(150)} exiting={FadeOutRight.duration(150)}>
       <View style={styles.section}>
         <Text style={styles.label}>Volume</Text>
-        <Text style={styles.value}>{volume} kg</Text>
+        <Text style={styles.value}>{volume.toFixed(1)} kg</Text>
       </View>
       <View style={styles.divider}></View>
       <View style={styles.section}>
         <Text style={styles.label}>Duration</Text>
-        <Text style={styles.value}>{durationInSeconds}</Text>
+        <Text style={styles.value}>{formatDurationHourMinute(duration)}</Text>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
   },
   value: {
     color: Colors.gray[950],
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '400',
   },
   divider: {

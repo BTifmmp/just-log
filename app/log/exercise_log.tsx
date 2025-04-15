@@ -4,9 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import LogRow from '@/components/exercise/LogRow';
-import { Button } from 'react-native-paper';
+import { Button, Snackbar } from 'react-native-paper';
 import { addLogsBatch } from '@/db/queries';
 import { useDb } from '@/components/DBProvider';
+import ErrorModal from '@/components/common/ErrorModal';
+import { useSnackbar } from '@/components/common/PersistantSnackbarProvider';
+import { Ionicons } from '@expo/vector-icons';
 
 const weightOptions = [10, 5, 2.5, 1.25];
 
@@ -14,11 +17,14 @@ export default function ExerciseLog() {
   const { exerciseId, name } = useLocalSearchParams();
   const nav = useNavigation();
   const { db } = useDb();
+  const { registerSnackbar, showSnackbar } = useSnackbar();
+
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
 
   const [selectedWeightStep, setSelectedWeightStep] = useState<number>(10);
   const [showRemove, setShowRemove] = useState(false);
   const [setsList, setSetsList] = useState<
-    { id: number; reps: string | undefined; weight: string | undefined }[]
+    { id: number; reps: string | undefined; weight: string | undefined, date: number | undefined }[]
   >([]);
 
   useEffect(() => {
@@ -31,6 +37,7 @@ export default function ExerciseLog() {
       id: Date.now(),
       reps: '8',
       weight: '80',
+      date: Date.now()
     };
     setSetsList([...setsList, newSet]);
   }
@@ -51,83 +58,99 @@ export default function ExerciseLog() {
       reps: Number(item.reps),
       weight: Number(item.weight),
       exerciseId: Number(exerciseId),
-      date: Date.now(),
+      date: item.date,
     }));
-    const res = await addLogsBatch(db, pushFormat);
+
+    try {
+      const res = await addLogsBatch(db, pushFormat);
+      registerSnackbar('exercise_log',
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15, marginRight: 10 }}>
+          <Ionicons name='checkmark-sharp' size={18} color={Colors.gray[50]} style={{ backgroundColor: 'rgb(58, 199, 88)', padding: 2, borderRadius: 99 }} />
+          <Text style={{ fontSize: 15, color: Colors.gray[950] }}>{`${res.changes} ${name} ${res.changes > 1 ? 'logs' : 'log'} added succesfully`}</Text>
+        </View>,
+        3000);
+      showSnackbar('exercise_log')
+      nav.goBack();
+    } catch (e) {
+      setIsErrorVisible(true);
+    }
   }
 
   return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', flexDirection: 'column' }}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.label}>
-          Weight Step <Text style={styles.labelSub}>(kg)</Text>
-        </Text>
-        <View style={styles.weightOptions}>
-          {weightOptions.map((option) => (
-            <View
-              key={option}
-              style={{ overflow: 'hidden', borderRadius: BorderRadius.medium }}>
-              <Pressable
-                onPress={() => setSelectedWeightStep(option)}
-                style={[styles.radioOption, selectedWeightStep === option && { borderColor: Colors.blue[500] }]}>
-                <Text
-                  style={[styles.radioLabel, selectedWeightStep === option && { color: Colors.gray[950] }]}>
-                  {option}
-                </Text>
-              </Pressable>
-            </View>
+    <View style={{ flex: 1 }}>
+      <ErrorModal title='Error occured' message='An issue occurred while saving the data. Please try again.' visible={isErrorVisible} onClose={() => { setIsErrorVisible(false) }} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', flexDirection: 'column' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.label}>
+            Weight Step <Text style={styles.labelSub}>(kg)</Text>
+          </Text>
+          <View style={styles.weightOptions}>
+            {weightOptions.map((option) => (
+              <View
+                key={option}
+                style={{ overflow: 'hidden', borderRadius: BorderRadius.medium }}>
+                <Pressable
+                  onPress={() => setSelectedWeightStep(option)}
+                  style={[styles.radioOption, selectedWeightStep === option && { borderColor: Colors.blue[500] }]}>
+                  <Text
+                    style={[styles.radioLabel, selectedWeightStep === option && { color: Colors.gray[950] }]}>
+                    {option}
+                  </Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+
+          <Text style={styles.setsHeader}>Sets</Text>
+          <View
+            style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingBottom: 10, }}>
+            <Text style={styles.setLabel}>REPS</Text>
+            <Text style={styles.setLabel}>WEIGHT</Text>
+          </View>
+
+          {setsList.map((log) => (
+            <LogRow
+              key={log.id}
+              id={log.id}
+              showRemove={showRemove}
+              onRemove={removeSet}
+              onChange={updateSet}
+              reps={log.reps}
+              weight={log.weight}
+              weightStep={selectedWeightStep}
+            />
           ))}
+
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 15, marginBottom: 60, paddingHorizontal: '10%' }}>
+            <Button
+              onPress={addSet}
+              style={styles.secondaryButton}
+              rippleColor={Colors.gray[350]}
+              labelStyle={styles.secondaryLabel}>
+              Add
+            </Button>
+            <Button
+              onPress={() => setShowRemove(!showRemove)}
+              style={styles.secondaryButton}
+              rippleColor={Colors.gray[350]}
+              labelStyle={styles.secondaryLabel}>
+              {showRemove ? 'Discard' : 'Remove'}
+            </Button>
+          </View>
         </View>
-
-        <Text style={styles.setsHeader}>Sets</Text>
-        <View
-          style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingBottom: 10, }}>
-          <Text style={styles.setLabel}>REPS</Text>
-          <Text style={styles.setLabel}>WEIGHT</Text>
-        </View>
-
-        {setsList.map((log) => (
-          <LogRow
-            key={log.id}
-            id={log.id}
-            showRemove={showRemove}
-            onRemove={removeSet}
-            onChange={updateSet}
-            reps={log.reps}
-            weight={log.weight}
-            weightStep={selectedWeightStep}
-          />
-        ))}
-
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 15, marginBottom: 60, paddingHorizontal: '10%' }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 20, marginTop: 20, }}>
           <Button
-            onPress={addSet}
-            style={styles.secondaryButton}
-            rippleColor={Colors.gray[350]}
-            labelStyle={styles.secondaryLabel}>
-            Add
-          </Button>
-          <Button
-            onPress={() => setShowRemove(!showRemove)}
-            style={styles.secondaryButton}
-            rippleColor={Colors.gray[350]}
-            labelStyle={styles.secondaryLabel}>
-            {showRemove ? 'Discard' : 'Remove'}
+            onPress={pushLogsToDb}
+            style={styles.logButton}
+            rippleColor={Colors.blue[300]}
+            labelStyle={styles.logButtonLabel}>
+            Log
           </Button>
         </View>
-      </View>
-      <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 20, marginTop: 20, }}>
-        <Button
-          onPress={pushLogsToDb}
-          style={styles.logButton}
-          rippleColor={Colors.blue[300]}
-          labelStyle={styles.logButtonLabel}>
-          Log
-        </Button>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

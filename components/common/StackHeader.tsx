@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 17,
     marginLeft: 5,
     fontWeight: 400,
     color: Colors.gray[950],
