@@ -1,44 +1,56 @@
 {
   "expo": {
-    "name": "tracky",
-    "slug": "tracky",
+    "name": "Just Log",
+    "slug": "just_log",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/logo.png",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.anonymous.tracky"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "5eeb707b-be3e-4d99-b253-a490f0e7cd91"
+      }
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#0f0f0f"
         }
       ],
       [
         "expo-sqlite",
         {}
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/RobotoCondensed.ttf"
+          ]
+        }
       ]
     ],
+    "androidStatusBar": {
+      "backgroundColor": "#0f0f0f",
+      "translucent": false
+    },
+    "android": {
+      "package": "com.beturapps.just_log"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
     "experiments": {
       "typedRoutes": true
     }

@@ -81,7 +81,7 @@ export default function ImagePick({ onImageSelect }: ImagePickProps) {
           Camera
         </Button>
       </View>
-      <View style={{ flexDirection: 'row', borderRadius: BorderRadius.largest }}>
+      <View style={{ flexDirection: 'row', borderRadius: BorderRadius.medium }}>
         <Text style={styles.imageNote}>If no image provided, one will be generated based on name.</Text>
       </View>
     </View>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     height: 60,
     width: 60,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: Colors.gray[300],
     alignItems: 'center',
     justifyContent: 'center'

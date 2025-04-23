@@ -64,7 +64,7 @@ export default function LogsLineChart({
             endSpacing={10}
             xAxisLabelsVerticalShift={5}
             labelsExtraHeight={10}
-            barBorderRadius={BorderRadius.largest}
+            barBorderRadius={BorderRadius.medium}
             frontColor={Colors.blue[500]}
             barWidth={chartParentWidth / (data.length) - 10 / (data.length) - (20 - 20 / data.length)}
             getPointerProps={({ pointerIndex, pointerX, pointerY, }: any) => {

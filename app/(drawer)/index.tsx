@@ -1,7 +1,6 @@
 import { SectionList, StyleSheet, View, Text } from 'react-native'
 import ExerciseCard from '@/components/exercise_lists/ExerciseCard';
-import { ExerciseImages } from '@/constants/Images';
-import Colors from '@/constants/Colors';
+import Colors, { randomColor, ThumbnailColors } from '@/constants/Colors';
 import { FAB } from 'react-native-paper';
 import { router } from 'expo-router'
 import { useDb } from '@/components/DBProvider';
@@ -10,8 +9,11 @@ import { exerciseTable } from '@/db/schema';
 import { fetchTrackedExerciseWithLatestLog } from '@/db/queries';
 import { useLiveTablesQuery } from '@/db/useLiveTablesQuery';
 import { Ionicons } from '@expo/vector-icons';
+import { usePreferredWeightUnit } from '@/components/common/PrefferedWeightUnitProvider';
+import { convertWeight, kgToLb } from '@/scripts/converter';
 
 export default function ExerciseList() {
+  const { unit } = usePreferredWeightUnit();
   const { db } = useDb();
   const { data, error } = useLiveTablesQuery(fetchTrackedExerciseWithLatestLog(db), ['logs', 'exercises']);
 
@@ -38,24 +40,31 @@ export default function ExerciseList() {
       </View >
       :
       <View style={{ flex: 1 }}>
-        <SectionList
-          contentContainerStyle={{ paddingBottom: 20 + 80, paddingHorizontal: 10, paddingTop: 5 }}
-          showsVerticalScrollIndicator={false}
-          sections={DATA}
-          decelerationRate="fast"
-          overScrollMode='auto'
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }: any) =>
-            <ExerciseCard
-              title={item.name}
-              exerciseId={item.exerciseId}
-              lastLog={item.last_log_date ? `${item.reps} x ${item.weight}kg   ${formatUnixDate(item.last_log_date, false)}` : 'No logs added'}
-              img={ExerciseImages.bench} />
-          }
-          renderSectionHeader={({ section: { title } }) => (
-            <Text style={styles.category}>{title.charAt(0).toUpperCase() + title.slice(1).toLowerCase()}</Text>
-          )}
-        />
+        {DATA.length == 0
+          ?
+          <View style={styles.container}>
+            <Text style={styles.title}>Add exercise</Text>
+            <Text style={styles.subtitle}>You haven't added any exercises yet. Tracklist helps you quickly access and log them during workouts.</Text>
+          </View>
+          :
+          <SectionList
+            contentContainerStyle={{ paddingBottom: 20 + 80, paddingHorizontal: 10, paddingTop: 5 }}
+            showsVerticalScrollIndicator={false}
+            sections={DATA}
+            decelerationRate="fast"
+            overScrollMode='auto'
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }: any) =>
+              <ExerciseCard
+                title={item.name}
+                exerciseId={item.exerciseId}
+                lastLog={item.last_log_date ? `${item.reps} x ${convertWeight(item.weight, unit)}${unit}   ${formatUnixDate(item.last_log_date, false)}` : 'No logs added'}
+                color={item.color} />
+            }
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.category}>{title.charAt(0).toUpperCase() + title.slice(1).toLowerCase()}</Text>
+            )}
+          />}
         < FAB
           icon="plus"
           style={styles.fab}
@@ -104,6 +113,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   subtitle: {
+    width: '70%',
     fontSize: 14,
     color: Colors.gray[750],
     textAlign: 'center',

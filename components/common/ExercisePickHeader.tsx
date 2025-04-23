@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     flex: 2,
     height: 40,
     backgroundColor: Colors.gray[250],
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     paddingHorizontal: 10,
     color: Colors.gray[950],
     marginRight: 5
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   categoryButton: {
     height: 40,
     flex: 1,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: Colors.gray[250],
   },
 
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   // Menu
   menu: {
     // paddingVertical: 0,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     overflow: 'hidden',
     backgroundColor: Colors.gray[300]
   }

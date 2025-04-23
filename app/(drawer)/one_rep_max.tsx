@@ -1,14 +1,30 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import { Button } from 'react-native-paper';
 import TextInputActionRight from '@/components/common/TextInputActionRight';
 import { DistributionRow, calculateOneRepMaxArrayFullReps, calculateOneRepMaxArray } from '@/scripts/one_rep_calc';
 import RadioButtonOutlined from '@/components/common/RadioButtonOutlined';
+import Storage from 'expo-sqlite/kv-store';
+import { usePreferredWeightUnit } from '@/components/common/PrefferedWeightUnitProvider';
 
 
 export default function OneRepMax() {
+  const { unit, setUnit } = usePreferredWeightUnit();
+  const [weightUnitState, setWeightUnitState] = useState(unit);
+
+  function toggleWeight() {
+    if (weightUnitState == 'kg') {
+      setWeightUnitState('lb')
+    } else if (weightUnitState == 'lb') {
+      setWeightUnitState('kg')
+    }
+  }
+
+  useEffect(() => {
+    setWeightUnitState(unit)
+  }, [unit]);
 
 
   const [reps, setReps] = useState('');
@@ -32,7 +48,7 @@ export default function OneRepMax() {
   return (
     <ScrollView style={{ paddingTop: 15 }}>
       <View style={{ paddingHorizontal: 10 }}>
-        <View style={{ padding: 15, backgroundColor: Colors.gray[150], marginBottom: 20, borderRadius: BorderRadius.largest }}>
+        <View style={{ padding: 15, backgroundColor: Colors.gray[150], marginBottom: 20, borderRadius: BorderRadius.medium }}>
           <Text style={{ fontSize: 15, color: Colors.gray[750], fontWeight: 400, lineHeight: 20 }}>
             <Text style={{ color: Colors.gray[950], fontWeight: 600 }}>One-Rep Max (1RM) </Text>
             calculator determines your maximum strength and estimates achievable reps at different weights.
@@ -41,7 +57,7 @@ export default function OneRepMax() {
 
         <View style={{ paddingHorizontal: 5 }}>
           <Text style={{ fontSize: 15, color: Colors.gray[750], fontWeight: 400, marginLeft: 5, marginBottom: 5 }}>Weight</Text>
-          <TextInputActionRight placeholder='Weight' actionText='kg' onActionPress={() => { }} onChange={setWeight} />
+          <TextInputActionRight placeholder='Weight' actionText={weightUnitState} onActionPress={toggleWeight} onChange={setWeight} />
           <Text style={{ fontSize: 15, color: Colors.gray[750], fontWeight: 400, marginLeft: 5, marginBottom: 5, marginTop: 15 }}>Reps</Text>
           <TextInputActionRight placeholder='Reps' onChange={setReps} />
 
@@ -64,7 +80,7 @@ export default function OneRepMax() {
             <RadioButtonOutlined text='Full Reps' onPress={() => { updateDistributionFullReps(); setSelected('reps') }} isSelected={selected == 'reps'} />
           </View>
           <View style={styles.distributionContainer}>
-            <View style={[styles.distributionRow, { backgroundColor: Colors.gray[150], marginBottom: -10 }]}>
+            <View style={[styles.distributionRow, { marginBottom: -10 }]}>
               <View style={styles.distributionRowContent}>
                 <Text style={styles.category}>1RM%</Text>
                 <Text style={styles.category}>WEIGHT</Text>
@@ -79,7 +95,7 @@ export default function OneRepMax() {
                     {item.percentage} <Text style={styles.subText}>%</Text>
                   </Text>
                   <Text numberOfLines={1} style={styles.distributionText}>
-                    {item.weight} <Text style={styles.subText}>kg</Text>
+                    {item.weight} <Text style={styles.subText}>{weightUnitState}</Text>
                   </Text>
                   <Text numberOfLines={1} style={styles.distributionText}>
                     {item.reps} <Text style={styles.subText}>reps</Text>
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
   },
   calcButton: {
     flex: 1,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: Colors.blue[500],
     marginTop: 30
   },
@@ -115,7 +131,7 @@ const styles = StyleSheet.create({
 
   distributionContainer: {
     marginHorizontal: 10,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     overflow: 'hidden',
     backgroundColor: Colors.gray[150],
     marginTop: 15,

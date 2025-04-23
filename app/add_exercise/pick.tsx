@@ -2,10 +2,9 @@ import { SectionList, StyleSheet, View, Text } from 'react-native'
 import { useState, useEffect } from 'react'
 import { useNavigation } from 'expo-router';
 import PickCard from '@/components/exercise_lists/PickCard';
-import Colors from '@/constants/Colors';
+import Colors, { randomColor } from '@/constants/Colors';
 import React from 'react'
 import ExercisePickHeader from '@/components/common/ExercisePickHeader';
-import { ExerciseImages } from '@/constants/Images';
 import { useLiveTablesQuery } from '@/db/useLiveTablesQuery';
 import { addToTrackingList, fetchAllExercises, removeFromTrackingList } from '@/db/queries';
 import { useDb } from '@/components/DBProvider';
@@ -23,7 +22,7 @@ export default function Pick() {
   })
 
   const { db } = useDb();
-  const { registerSnackbar, showSnackbar } = useSnackbar();
+  const { registerSnackbar, showSnackbar, hideSnackbar } = useSnackbar();
 
   const { data, error } = useLiveTablesQuery(fetchAllExercises(db), ['exercises']);
 
@@ -93,7 +92,7 @@ export default function Pick() {
           decelerationRate="fast"
           overScrollMode='auto'
           keyExtractor={(item, index) => item + index.toString()}
-          renderItem={({ item }: any) => <PickCard isTracked={item.is_tracked} id={item.id} onActionPress={() => { updateTracking(item.id, !item.is_tracked, item.name) }} imgSrc={ExerciseImages.bench} title={item.name} />}
+          renderItem={({ item }: any) => <PickCard isTracked={item.is_tracked} id={item.id} onActionPress={() => { updateTracking(item.id, !item.is_tracked, item.name) }} color={item.color} title={item.name} />}
           renderSectionHeader={({ section: { title } }) => (<View style={{ backgroundColor: Colors.gray[50], padding: 10, marginLeft: 5, marginBottom: -5, marginTop: 5 }}>
             <Text style={{ fontSize: 17, fontWeight: 400, color: Colors.gray[700] }}>{title}</Text>
           </View>)}

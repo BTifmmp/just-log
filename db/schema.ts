@@ -23,6 +23,7 @@ export const exerciseTable = sqliteTable(
   is_tracked: int().notNull().default(0),
   is_user_added: int().notNull().default(0),
   date_added: int().notNull().default(Date.now()),
+  color: text().notNull().default("#ffffff"),
 },
   (table) => [
     check("user_added_check", sql`${table.is_user_added} IN (0, 1)`),

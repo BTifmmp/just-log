@@ -86,7 +86,7 @@ export default function ActivityCalendar() {
   const { db } = useDb();
   const { selectedDay, setSelectedDay } = useDaySelection();
 
-  const { data: activity } = useLiveTablesQuery(fetchActivityByDay(db, 0, Date.now() + 1), ['logs', 'exercises']);
+  const { data: activity, error } = useLiveTablesQuery(fetchActivityByDay(db, 0, 2 * 1745358300534), ['logs', 'exercises']);
   const [selectedQuareter, setSelectedQuareter] = useState(Math.floor((new Date().getMonth()) / 4) + 1)
 
   const activeDaySet = new Set(
@@ -123,7 +123,7 @@ export default function ActivityCalendar() {
   };
 
   const DateButton = ({ label, onPress }: { label: string, onPress: () => void }) => (
-    <View style={{ borderRadius: BorderRadius.largest, overflow: 'hidden' }}>
+    <View style={{ borderRadius: BorderRadius.medium, overflow: 'hidden' }}>
       <TouchableRipple rippleColor={Colors.gray[500]} onPress={onPress} style={{ padding: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
           <Text style={styles.filterText}>{label}</Text>
@@ -157,45 +157,53 @@ export default function ActivityCalendar() {
 
 
   return (
-    <View style={{ flex: 1 }}>
-      <SpinnerMenuModal initialSelectedOption={`${wrapQuarter(selectedQuareter) + 1}Q ${new Date(Date.now()).getFullYear() + Math.floor(selectedQuareter / 4)}`} onSelect={(val) => { setSelectedQuareter(calculateQuarterDifference(parseQuarterString(val).quarter, parseQuarterString(val).year)) }} visible={modalSpinnerVisible} onRequestClose={() => setModalSpinnerVisible(false)} options={quarterStrings} />
-      <FlatList
-        style={{ paddingHorizontal: 15, paddingTop: 15 }}
-        data={months}
-        initialNumToRender={4}
-        keyExtractor={({ year, month }) => `${year}-${month}`}
-        ListHeaderComponent={() => (
-          <View style={styles.filterContainer}>
-            <IconButton
-              style={{ margin: 0 }}
-              onPress={() => { setSelectedQuareter(selectedQuareter - 1) }}
-              icon={() => (
-                <Ionicons name="chevron-back" size={20} color={Colors.gray[950]} />
-              )}
+    error
+      ?
+      <View style={styles.container}>
+        <Ionicons name="warning-outline" size={40} color={Colors.red[400] || '#ff6b6b'} style={styles.icon} />
+        <Text style={styles.title}>Error occured</Text>
+        <Text style={styles.subtitle}>An issue occured while loading data.</Text>
+      </View>
+      :
+      <View style={{ flex: 1 }}>
+        <SpinnerMenuModal initialSelectedOption={`${wrapQuarter(selectedQuareter) + 1}Q ${new Date(Date.now()).getFullYear() + Math.floor(selectedQuareter / 4)}`} onSelect={(val) => { setSelectedQuareter(calculateQuarterDifference(parseQuarterString(val).quarter, parseQuarterString(val).year)) }} visible={modalSpinnerVisible} onRequestClose={() => setModalSpinnerVisible(false)} options={quarterStrings} />
+        <FlatList
+          style={{ paddingHorizontal: 15, paddingTop: 15 }}
+          data={months}
+          initialNumToRender={4}
+          keyExtractor={({ year, month }) => `${year}-${month}`}
+          ListHeaderComponent={() => (
+            <View style={styles.filterContainer}>
+              <IconButton
+                style={{ margin: 0 }}
+                onPress={() => { setSelectedQuareter(selectedQuareter - 1) }}
+                icon={() => (
+                  <Ionicons name="chevron-back" size={20} color={Colors.gray[950]} />
+                )}
+              />
+              <DateButton
+                label={`Q${wrapQuarter(selectedQuareter) + 1} ${new Date(Date.now()).getFullYear() + Math.floor(selectedQuareter / 4)}`}
+                onPress={() => { setModalSpinnerVisible(true) }}
+              />
+              <IconButton
+                style={{ margin: 0 }}
+                onPress={() => { setSelectedQuareter(selectedQuareter + 1) }}
+                icon={() => (
+                  <Ionicons name="chevron-forward" size={20} color={Colors.gray[950]} />
+                )}
+              />
+            </View>
+          )}
+          renderItem={({ item }) => (
+            <MonthBlock
+              name={item.name}
+              year={item.year}
+              month={item.month}
+              daysArray={item.daysArray}
+              onSelect={handleSelect}
             />
-            <DateButton
-              label={`Q${wrapQuarter(selectedQuareter) + 1} ${new Date(Date.now()).getFullYear() + Math.floor(selectedQuareter / 4)}`}
-              onPress={() => { setModalSpinnerVisible(true) }}
-            />
-            <IconButton
-              style={{ margin: 0 }}
-              onPress={() => { setSelectedQuareter(selectedQuareter + 1) }}
-              icon={() => (
-                <Ionicons name="chevron-forward" size={20} color={Colors.gray[950]} />
-              )}
-            />
-          </View>
-        )}
-        renderItem={({ item }) => (
-          <MonthBlock
-            name={item.name}
-            year={item.year}
-            month={item.month}
-            daysArray={item.daysArray}
-            onSelect={handleSelect}
-          />
-        )}
-      /></View>
+          )}
+        /></View>
 
   );
 }
@@ -229,7 +237,7 @@ const styles = StyleSheet.create({
   },
 
   day: {
-    color: Colors.gray[750],
+    color: Colors.gray[950],
     fontSize: 15,
     padding: 10,
     textAlign: 'center',
@@ -245,10 +253,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: Colors.gray[300],
+    backgroundColor: Colors.gray[150],
     padding: 5,
     paddingVertical: 5,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     marginBottom: 15,
     marginHorizontal: -5
   },
@@ -267,5 +275,25 @@ const styles = StyleSheet.create({
     color: Colors.gray[600],
     fontSize: 14,
     textAlign: 'center',
-  }
+  },
+  container: {
+    margin: 10,
+    marginTop: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.gray[950],
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.gray[750],
+    textAlign: 'center',
+  },
 });

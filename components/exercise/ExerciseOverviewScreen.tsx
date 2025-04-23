@@ -5,6 +5,8 @@ import BorderRadius from '@/constants/Styles';
 import { getStats } from '@/scripts/exercise_stats';
 import { getTimeAgo } from '@/scripts/date';
 import { useEffect, useMemo, useState } from 'react';
+import { usePreferredWeightUnit } from '../common/PrefferedWeightUnitProvider';
+import { convertWeight, kgToLb } from '@/scripts/converter';
 
 
 type ExerciseOverviewScreenProps = {
@@ -14,6 +16,7 @@ type ExerciseOverviewScreenProps = {
 
 export default function ExerciseOverview({ logs, name }: ExerciseOverviewScreenProps) {
   const stats = useMemo(() => getStats(logs), [logs]);
+  const { unit } = usePreferredWeightUnit();
 
   return (
     <ScrollView nestedScrollEnabled style={styles.container}>
@@ -28,22 +31,24 @@ export default function ExerciseOverview({ logs, name }: ExerciseOverviewScreenP
           <View style={styles.divider} />
           <View style={styles.rowItem}>
             <Text style={styles.label}>Last Set</Text>
-            <Text style={styles.value}>{logs.length > 0 ? `${stats.latestReps} x ${stats.latestWeight}kg` : 'no set'}</Text>
+            <Text style={styles.value}>{logs.length > 0 ? `${stats.latestReps} x ${convertWeight(stats.latestWeight, unit)}${unit}` : 'no set'}</Text>
           </View>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Personal Records</Text>
       <View style={styles.listContainer}>
-        {renderRecord("Max Weight", stats.maxWeight.toString())}
+        <Text style={styles.sectionTitle}>Personal Records</Text>
+
+        {renderRecord("Max Weight", convertWeight(stats.maxWeight, unit).toString() + ` ${unit}`)}
         {renderRecord("Max Reps", stats.maxReps.toString())}
-        {renderRecord("Day Volume", stats.maxDayVolume.toFixed(1) + " kg")}
-        {renderRecord("Estimated 1RM", stats.estimated1RM.toString() + " kg", true)}
+        {renderRecord("Day Volume", convertWeight(stats.maxDayVolume, unit).toFixed(1) + ` ${unit}`)}
+        {renderRecord("Estimated 1RM", convertWeight(stats.estimated1RM, unit) + ` ${unit}`, true)}
       </View>
 
-      <Text style={styles.sectionTitle}>Lifetime Stats</Text>
       <View style={styles.listContainer}>
-        {renderRecord("Weight Lifted", Math.round(stats.totalWeight) + " kg")}
+        <Text style={styles.sectionTitle}>Lifetime Stats</Text>
+
+        {renderRecord("Weight Lifted", Math.round(convertWeight(stats.totalWeight, unit)) + ` ${unit}`)}
         {renderRecord("Reps", stats.totalReps.toString())}
         {renderRecord("Number of Logs", stats.totalLogs.toString(), true)}
       </View>
@@ -72,19 +77,22 @@ const styles = StyleSheet.create({
     color: Colors.gray[950],
   },
   card: {
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: Colors.gray[150],
+    // marginHorizontal: -10,
+    // borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.gray[300],
     padding: 12,
   },
   rowContainer: {
     flexDirection: 'row',
-    borderRadius: BorderRadius.largest,
-    marginTop: 10,
+    borderRadius: BorderRadius.medium,
+    marginTop: 5,
     gap: 8,
   },
   rowItem: {
     flex: 1,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     paddingVertical: 8,
   },
   label: {
@@ -94,7 +102,7 @@ const styles = StyleSheet.create({
   },
   value: {
     color: Colors.gray[950],
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 400,
   },
   divider: {
@@ -104,14 +112,18 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   sectionTitle: {
-    color: Colors.gray[650],
+    color: Colors.gray[750],
     fontWeight: '400',
-    fontSize: 18,
-    marginTop: 30,
-    marginLeft: 5
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 5,
   },
   listContainer: {
-    paddingHorizontal: 5,
+    borderRadius: BorderRadius.medium,
+    backgroundColor: Colors.gray[150],
+    padding: 12,
+    paddingVertical: 0,
+    marginTop: 10,
   },
   recordRow: {
     justifyContent: 'space-between',
@@ -119,8 +131,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.gray[300],
-    paddingVertical: 17,
+    borderColor: Colors.gray[400],
+    paddingVertical: 15,
   },
   recordLabel: {
     color: Colors.gray[950],
@@ -128,7 +140,7 @@ const styles = StyleSheet.create({
   },
   recordValue: {
     color: Colors.gray[750],
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 400,
   },
 });

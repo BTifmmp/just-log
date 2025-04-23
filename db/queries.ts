@@ -3,6 +3,7 @@ import { int } from 'drizzle-orm/sqlite-core';
 import { exerciseTable, logsTable } from '@/db/schema';
 import { sql, eq, and, gt, lt, desc } from 'drizzle-orm';
 import { ExpoSQLiteDatabase, useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { randomColor } from '@/constants/Colors';
 
 export function fetchActivityByDay(
   db: ExpoSQLiteDatabase,
@@ -19,7 +20,7 @@ export function fetchActivityByDay(
         lt(logsTable.date, endOfRangeMs)
       )
     )
-    .groupBy(sql`(logs.date / 86400000) * 86400000`);
+    .groupBy(sql`logs.date / 86400000`);
 
   return res;
 }
@@ -62,6 +63,7 @@ export function fetchTrackedExerciseWithLatestLog(db: ExpoSQLiteDatabase) {
       is_tracked: exerciseTable.is_tracked,
       is_user_added: exerciseTable.is_user_added,
       date_added: exerciseTable.date_added,
+      color: exerciseTable.color,
       reps: logsTable.reps,
       weight: logsTable.weight,
       last_log_date: logsTable.date,
@@ -145,7 +147,81 @@ export async function deleteExercise(db: ExpoSQLiteDatabase, exerciseId: number)
 
 export async function createExercise(db: ExpoSQLiteDatabase, name: string, category: string) {
   const res = db.insert(exerciseTable).
-    values({ name: name, category: category, is_tracked: 1, is_user_added: 1 });
+    values({ name: name, category: category, is_tracked: 1, is_user_added: 1, color: randomColor() });
 
   return res
+}
+
+export async function updateExercise(db: ExpoSQLiteDatabase, id: number, name: string, category: string) {
+  const res = db
+    .update(exerciseTable)
+    .set({ name: name, category: category })
+    .where(eq(exerciseTable.id, id));
+
+  return res;
+}
+
+export function getDaysActive(db: ExpoSQLiteDatabase) {
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  const res = db.select({
+    monthCount: sql<number>`
+    COUNT(CASE WHEN ${logsTable.date} >= ${oneMonthAgo.getTime()} THEN 1 END)
+  `.as('month_count'),
+
+    yearCount: sql<number>`
+    COUNT(CASE WHEN ${logsTable.date} >= ${oneYearAgo.getTime()} THEN 1 END)
+  `.as('year_count'),
+
+    allCount: sql<number>`
+    COUNT(${logsTable.date})
+  `.as('all_count')
+  }).from(db.select()
+    .from(logsTable)
+    .groupBy(sql`(${logsTable.date} / 86400000)`).as('sq'));
+
+  return res;
+}
+
+export function getLogsByCategory(db: ExpoSQLiteDatabase) {
+  const res = db
+    .select({
+      category: exerciseTable.category,
+      logCount: sql<number>`COUNT(${logsTable.id})`.as('logCount')
+    })
+    .from(logsTable)
+    .innerJoin(exerciseTable, eq(logsTable.exerciseId, exerciseTable.id))
+    .groupBy(exerciseTable.category)
+    .orderBy(desc(sql`logCount`));
+
+  return res;
+}
+
+export function getAllTimeStats(db: ExpoSQLiteDatabase) {
+  const res = db
+    .select({
+      totalWeight: sql<number>`(SELECT SUM(weight * reps) FROM logs)`,
+      totalReps: sql<number>`(SELECT SUM(reps) FROM logs)`
+    })
+    .from(sql`(SELECT 1)`);
+  return res;
+}
+
+export function getFavoriteExercises(db: ExpoSQLiteDatabase, limit: number = 5) {
+  const res = db
+    .select({
+      name: exerciseTable.name,
+      logCount: sql<number>`COUNT(${logsTable.id})`.as('logCount')
+    })
+    .from(logsTable)
+    .innerJoin(exerciseTable, eq(logsTable.exerciseId, exerciseTable.id))
+    .groupBy(logsTable.exerciseId)
+    .orderBy(desc(sql`logCount`))
+    .limit(limit);
+
+  return res;
 }

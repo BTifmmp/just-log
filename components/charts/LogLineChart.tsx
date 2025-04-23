@@ -85,7 +85,7 @@ export default function LogsBarChart({
                 yAxis={[
                   {
                     tickCount: 4,
-                    tickValues: [0, Math.max(...data.map(item => item.value + 20)) * 0.333, Math.max(...data.map(item => item.value + 20)) * 0.6666, Math.max(...data.map(item => item.value + 20))],
+                    tickValues: [0, Math.max(...data.map(item => item.value)) * 0.333, Math.max(...data.map(item => item.value)) * 0.6666, Math.max(...data.map(item => item.value))],
                     yKeys: ['value'],
                     lineColor: Colors.gray[300],
                     labelOffset: 4,

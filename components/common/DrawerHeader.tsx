@@ -16,7 +16,6 @@ export default function DrawerHeader({ layout, navigation, options, route, }: Dr
 
         <View style={[styles.expand, styles.start]}>
           <Pressable onPress={navigation.openDrawer} style={[styles.backButton]}>
-            <View style={{ width: 5 }}></View>
             <Ionicons name="menu-outline" size={24} color={Colors.gray[950]} />
           </Pressable>
         </View>

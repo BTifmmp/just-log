@@ -26,7 +26,7 @@ export default function DayBox({ dayNumber, dayWeekName, hasActivity = false, se
           </View>
         </TouchableRipple>
       </View>
-      {hasActivity && <Ionicons name="ellipse" size={12} color={Colors.blue[500]} style={styles.activityIcon} />}
+      {hasActivity && <Ionicons name="ellipse" size={8} color={Colors.blue[500]} style={styles.activityIcon} />}
     </View>
   )
 }
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
   container: {
     height: 70,
     width: 55,
-    // backgroundColor: Colors.gray[150],
     borderRadius: BorderRadius.medium,
+    borderColor: Colors.gray[150],
     borderWidth: 1,
   },
   content: {
@@ -59,8 +59,7 @@ const styles = StyleSheet.create({
   },
   activityIcon: {
     position: 'absolute',
-    bottom: 5,
-
+    bottom: 8,
   },
 
 

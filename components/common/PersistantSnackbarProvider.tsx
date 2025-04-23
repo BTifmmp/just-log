@@ -44,21 +44,21 @@ export const PersistentSnackbarProvider: React.FC<PersistentSnackbarProviderProp
     });
   }, []);
 
-  const showSnackbar = useCallback((id: string) => {
+  const showSnackbar = (id: string) => {
     setSnackbars((prevSnackbars) => {
       return prevSnackbars.map(snackbar =>
         snackbar.id === id ? { ...snackbar, visible: true } : snackbar
       );
     });
-  }, []);
+  };
 
-  const hideSnackbar = useCallback((id: string) => {
+  const hideSnackbar = (id: string) => {
     setSnackbars((prevSnackbars) => {
       return prevSnackbars.map(snackbar =>
         snackbar.id === id ? { ...snackbar, visible: false } : snackbar
       );
     });
-  }, []);
+  };
 
   return (
     <PersistentSnackbarContext.Provider value={{ registerSnackbar, showSnackbar, hideSnackbar, snackbars }}>

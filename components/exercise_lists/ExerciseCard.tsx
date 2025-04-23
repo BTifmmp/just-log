@@ -6,17 +6,18 @@ import Colors from '@/constants/Colors';
 import BorderRadius from '@/constants/Styles';
 import { Button } from 'react-native-paper';
 import { RelativePathString } from 'expo-router';
+import { Thumbnail } from '@/components/exercise/ExerciseThumbnail';
 
 
 type ExerciseCardProps = {
   title: string
   lastLog: string
-  img: any
+  color: string
   exerciseId: any
 }
 
 
-export default function ExerciseCard({ title, lastLog, img, exerciseId }: ExerciseCardProps) {
+export default function ExerciseCard({ title, lastLog, color, exerciseId }: ExerciseCardProps) {
   return (
     <View style={styles.card}>
       <View style={{ flexDirection: 'row', }} >
@@ -26,8 +27,8 @@ export default function ExerciseCard({ title, lastLog, img, exerciseId }: Exerci
             params: { exerciseId: Number(exerciseId), name: title }
           })
         }} style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Image source={img} style={styles.imageStyle} />
+          <View style={{ flexDirection: 'row', gap: 10, marginRight: 60 }}>
+            <Thumbnail name={title} borderRadius={BorderRadius.small} fontSize={22} backgroundColor={color} textColor={Colors.gray[950]} size={50} />
             <View>
               <Text style={styles.cardText}>{title}</Text>
               <Text style={styles.cardTextSecondary}>{lastLog}</Text>
@@ -36,12 +37,14 @@ export default function ExerciseCard({ title, lastLog, img, exerciseId }: Exerci
         </Pressable>
         <View style={styles.buttonCenterWrap}>
           <Button
-            mode='text'
+            compact
+            mode='contained'
+            buttonColor={Colors.gray[750]}
             dark={true}
-            style={{ borderRadius: BorderRadius.large, }}
+            style={{ borderRadius: BorderRadius.large, backgroundColor: Colors.gray[300] }}
             onPress={() => { router.navigate({ pathname: '/log/exercise_log', params: { exerciseId: Number(exerciseId), name: title } }); }}
-            labelStyle={{ color: Colors.blue[500], fontWeight: 400, fontFamily: 'sans-serif', marginHorizontal: 0, fontSize: 15 }}
-            rippleColor={Colors.addOpacity(Colors.blue[300], 0.3)}
+            labelStyle={{ color: Colors.gray[750], fontWeight: 400, fontFamily: 'sans-serif', marginHorizontal: 10, marginVertical: 7, fontSize: 14 }}
+            rippleColor={Colors.gray[500]}
           >Log
           </Button>
         </View>
@@ -57,16 +60,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
-  imageStyle: {
-    width: 55,
-    height: 55,
-    borderRadius: BorderRadius.medium,
-  },
-
   card: {
     padding: 11,
     backgroundColor: Colors.gray[150],
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     marginBottom: 10,
   },
 

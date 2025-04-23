@@ -18,7 +18,6 @@ export default function Create() {
   const [isErrorVisible, setIsErrorVisible] = useState(false);
   const { registerSnackbar, showSnackbar } = useSnackbar();
 
-
   async function createExerciseCallback() {
     try {
       if (name != '' && category != '') {
@@ -36,7 +35,7 @@ export default function Create() {
           router.back();
         }
       }
-    } catch {
+    } catch (e) {
       setIsErrorVisible(true)
     }
 
@@ -53,7 +52,7 @@ export default function Create() {
           placeholder="Name"
           mode='outlined'
           style={styles.textInput}
-          contentStyle={{ borderRadius: BorderRadius.largest }}
+          contentStyle={{ borderRadius: BorderRadius.medium }}
           outlineStyle={{ borderRadius: BorderRadius.large, borderWidth: 1 }}
           outlineColor={Colors.gray[400]}
           activeOutlineColor={Colors.gray[650]}
@@ -61,7 +60,18 @@ export default function Create() {
         />
         {/* Category */}
         <Text style={styles.label}>Category</Text>
-        <CategoryPick onCategoryChange={setCategory} categories={["Chest", "Legs", "Biceps", "Triceps", "Shoulders", "Abs & Core", "Full body", "Other"]} />
+        <CategoryPick selectedCategory={category} onCategoryChange={setCategory} categories={[
+          'Chest',
+          'Back',
+          'Shoulders',
+          'Biceps',
+          'Triceps',
+          'Forearms',
+          'Core & Abs',
+          'Calves',
+          'Legs',
+          'Other'
+        ]} />
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingBottom: 20 }}>
@@ -106,7 +116,7 @@ const styles = StyleSheet.create({
 
   createButton: {
     flex: 1,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: Colors.blue[500],
     marginTop: 60
   },

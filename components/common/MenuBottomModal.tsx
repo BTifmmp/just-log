@@ -42,10 +42,10 @@ export default function MenuBottomModal({ modalRef, elements = [] }: MenuBottomM
             const isLast = index === elements.length - 1
 
             const borderRadiusStyle = {
-              borderTopLeftRadius: isFirst ? BorderRadius.largest : BorderRadius.small,
-              borderTopRightRadius: isFirst ? BorderRadius.largest : BorderRadius.small,
-              borderBottomLeftRadius: isLast ? BorderRadius.largest : BorderRadius.small,
-              borderBottomRightRadius: isLast ? BorderRadius.largest : BorderRadius.small,
+              borderTopLeftRadius: isFirst ? BorderRadius.medium : BorderRadius.small,
+              borderTopRightRadius: isFirst ? BorderRadius.medium : BorderRadius.small,
+              borderBottomLeftRadius: isLast ? BorderRadius.medium : BorderRadius.small,
+              borderBottomRightRadius: isLast ? BorderRadius.medium : BorderRadius.small,
               borderRadius: !isFirst && !isLast ? BorderRadius.small : undefined,
             }
 
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
 
   handle: {
     backgroundColor: Colors.gray[150],
-    borderTopLeftRadius: BorderRadius.largest,
-    borderTopRightRadius: BorderRadius.largest,
+    borderTopLeftRadius: BorderRadius.medium,
+    borderTopRightRadius: BorderRadius.medium,
   },
 
   elementsContainer: {

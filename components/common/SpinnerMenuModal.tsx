@@ -59,7 +59,7 @@ export default function SpinnerMenuModal({ options, visible, onRequestClose, onS
       <GestureHandlerRootView>
         <View style={styles.backdrop}>
           <Pressable onPress={onRequestClose} style={StyleSheet.absoluteFillObject} />
-          <View style={{ backgroundColor: Colors.gray[150], width: '100%', borderRadius: BorderRadius.largest, maxWidth: 400 }}>
+          <View style={{ backgroundColor: Colors.gray[150], width: '100%', borderRadius: BorderRadius.medium, maxWidth: 400 }}>
             <View style={{ alignItems: 'flex-end' }}>
               <IconButton onPress={onRequestClose} icon="close" size={20} style={{ margin: 10 }} />
             </View>
@@ -117,7 +117,7 @@ export default function SpinnerMenuModal({ options, visible, onRequestClose, onS
                   onRequestClose();
                 }}
                 labelStyle={{ fontSize: 18, fontWeight: 400, fontFamily: 'sans-serif', marginVertical: 10 }}
-                style={{ borderRadius: BorderRadius.largest, marginTop: 20, margin: 10 }}
+                style={{ borderRadius: BorderRadius.medium, marginTop: 20, margin: 10 }}
               >
                 Select
               </Button>

@@ -6,16 +6,15 @@ import { Button } from 'react-native-paper';
 type CategoryPickProps = {
   categories: string[]
   onCategoryChange: (category: string) => void
+  selectedCategory?: string
 }
 
-export default function CategoryPick({ categories, onCategoryChange }: CategoryPickProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
-
+export default function CategoryPick({ categories, onCategoryChange, selectedCategory = '' }: CategoryPickProps) {
   return (
     <View style={styles.categoryContainer}>
       {categories.map((category, index) => (
         <Button
-          onPress={() => { setSelectedCategory(category); onCategoryChange(category) }}
+          onPress={() => { onCategoryChange(category) }}
           key={index}
           textColor={Colors.gray[650]}
           rippleColor={Colors.gray[300]}

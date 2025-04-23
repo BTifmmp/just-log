@@ -30,7 +30,7 @@ export default function ActivityOverview({ volume = 0, duration = 0 }: ActivityO
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     padding: 12,
     paddingVertical: 5,
     gap: 8,
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   section: {
     flex: 1,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     paddingVertical: 8,
   },
   label: {

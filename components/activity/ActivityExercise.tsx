@@ -5,22 +5,25 @@ import BorderRadius from '@/constants/Styles';
 import { router } from 'expo-router';
 import { RelativePathString } from 'expo-router';
 import Animated, { FadeOutRight, FadeInLeft } from 'react-native-reanimated';
+import { usePreferredWeightUnit } from '../common/PrefferedWeightUnitProvider';
+import { convertWeight } from '@/scripts/converter';
 
 type ExerciseLogProps = {
   setNumber: number,
   reps: number,
   weight: number,
   time: string
+  unit: string
 }
 
-function ExerciseLog({ setNumber, reps, weight, time }: ExerciseLogProps) {
+function ExerciseLog({ setNumber, reps, weight, time, unit }: ExerciseLogProps) {
   return (
     <View style={{ paddingHorizontal: 10 }}>
       <View style={styles.logRow}>
         <Text style={[{ color: Colors.gray[950], fontSize: 16, fontWeight: 400 }]}>
           <Text style={{ fontWeight: 500 }}>{setNumber}</Text>     {reps}
           <Text style={{ fontSize: 15, color: Colors.gray[650] }}> reps</Text>     {weight}
-          <Text style={{ fontSize: 15, color: Colors.gray[650] }}> kg</Text>
+          <Text style={{ fontSize: 15, color: Colors.gray[650] }}> {unit}</Text>
         </Text>
         <Text style={styles.timeText}>{time}</Text>
       </View>
@@ -37,6 +40,8 @@ type ActivityExerciseProps = {
 }
 
 export default function ActivityExercise({ name, volume = 0, logsData = [], exerciseId }: ActivityExerciseProps) {
+  const { unit } = usePreferredWeightUnit();
+
   return (
     <Animated.View style={styles.container} entering={FadeInLeft.duration(150)} exiting={FadeOutRight.duration(150)}>
       <View>
@@ -49,7 +54,7 @@ export default function ActivityExercise({ name, volume = 0, logsData = [], exer
         }}>
           <Text style={styles.exerciseTitle}>{name}</Text>
         </Pressable>
-        <Text style={styles.exerciseVolume}>Volume {volume.toFixed(1)} kg</Text>
+        <Text style={styles.exerciseVolume}>Volume {convertWeight(volume, unit)} {unit}</Text>
       </View>
       {
         logsData.map((log, index) => <View key={index} style={{
@@ -57,7 +62,7 @@ export default function ActivityExercise({ name, volume = 0, logsData = [], exer
           borderBottomColor: Colors.gray[500],
           marginHorizontal: 5
 
-        }}><ExerciseLog setNumber={index + 1} reps={log.reps} weight={log.weight} time={log.time} /></View>)
+        }}><ExerciseLog setNumber={index + 1} reps={log.reps} weight={convertWeight(log.weight, unit)} time={log.time} unit={unit} /></View>)
       }
     </Animated.View >
 
@@ -68,12 +73,15 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
     backgroundColor: Colors.gray[150],
+    // borderBottomWidth: 5,
+    // marginHorizontal: -10,
+    // borderColor: Colors.gray[300],
     padding: 10,
-    borderRadius: BorderRadius.largest
+    borderRadius: BorderRadius.medium
   },
   exerciseTitle: {
-    color: Colors.blue[500],
-    fontWeight: 400,
+    color: Colors.gray[950],
+    fontWeight: 500,
     fontSize: 18,
     marginBottom: -8,
     marginLeft: 5,
@@ -91,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingVertical: 15,
+    paddingVertical: 13,
   },
   logText: {
     color: Colors.gray[950],

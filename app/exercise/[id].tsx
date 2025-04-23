@@ -15,6 +15,7 @@ import BorderRadius from '@/constants/Styles';
 import MenuBottomModal, { ModalMenuElement } from '@/components/common/MenuBottomModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ErrorModal from '@/components/common/ErrorModal';
+import ConfirmModal from '@/components/common/ConfirmModal';
 
 
 const routes = [
@@ -41,6 +42,8 @@ export default function Exercise() {
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const [isConsfirmVisible, setIsConfirmVisible] = useState(false);
+
   const modalRef = useRef<BottomSheetModal>(null);
 
   const nav = useNavigation();
@@ -127,11 +130,16 @@ export default function Exercise() {
     }
   }
 
+  function onEditPress() {
+    router.navigate({ params: { id: Number(id), name: nameLoaded, category: exerciseRes.data[0].category }, pathname: '/add_exercise/edit' });
+  }
+
 
   return (
     <View style={{ flex: 1 }}>
       <View>
         <ErrorModal title='Error occured' message='An issue occurred while updating the data. Please try again.' visible={isErrorVisible} onClose={() => { setIsErrorVisible(false) }} />
+        <ConfirmModal title='Delete Exercise' message={`Deleting this exercise will permanently remove all associated logs.\n Are you sure you want to continue?`} visible={isConsfirmVisible} onConnfirm={onDeleteExercise} onClose={() => { setIsConfirmVisible(false) }} />
       </View>
 
       {!errorOccured ?
@@ -154,8 +162,8 @@ export default function Exercise() {
         elements={[
           exerciseRes.data.length > 0 && exerciseRes.data[0].is_tracked && { label: 'Stop tracking', iconName: 'remove', onPress: onRemoveFromTracked },
           exerciseRes.data.length > 0 && !exerciseRes.data[0].is_tracked && { label: 'Start tracking', iconName: 'add', onPress: onAddToTracked },
-          // exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { label: 'Edit', iconName: 'build-outline' },
-          exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { color: '#ff6b6b', label: 'Delete', iconName: 'trash-bin-outline', onPress: onDeleteExercise }
+          exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { label: 'Edit', iconName: 'build-outline', onPress: onEditPress },
+          exerciseRes.data.length > 0 && exerciseRes.data[0].is_user_added && { color: '#ff6b6b', label: 'Delete', iconName: 'trash-bin-outline', onPress: () => { setIsConfirmVisible(true) } }
         ].filter((item) => item != false) as ModalMenuElement[]} />
 
     </View>

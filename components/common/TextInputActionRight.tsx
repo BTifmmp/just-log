@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     height: 45,
   },
   textInputContent: {
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
   },
   textInputOutline: {
     borderRadius: BorderRadius.large,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   actionButton: {
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     margin: 5,
   },
 });

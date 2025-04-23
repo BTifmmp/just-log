@@ -19,7 +19,7 @@ export default function StyledTextInput({ value, onChangeText, placeholder }: St
       borderColor: isFocused ? Colors.gray[750] : Colors.gray[450],
       paddingVertical: 10 + Number(!isFocused),
       padding: 5 + Number(!isFocused),
-      borderRadius: BorderRadius.largest
+      borderRadius: BorderRadius.medium
     }}>
       <TextInput
         numberOfLines={1}
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.blue[500],
     padding: 10,
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     backgroundColor: "white",
   },
   input: {

@@ -35,7 +35,7 @@ export default function ErrorModal({
               onPress={onClose}
               textColor="white"
               labelStyle={{ fontSize: 16, fontWeight: 400, fontFamily: 'sans-serif', marginVertical: 10 }}
-              style={{ borderRadius: BorderRadius.largest, marginTop: 20, margin: 10 }}
+              style={{ borderRadius: BorderRadius.medium, marginTop: 20, margin: 10 }}
             >
               Ok
             </Button>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: Colors.gray[150],
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     width: '100%',
     maxWidth: 400,
   },
@@ -68,9 +68,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: 400,
+    fontWeight: 500,
     color: Colors.red[500],
     margin: 15,
+    marginTop: 20
   },
   message: {
     fontSize: 16,

@@ -21,7 +21,7 @@ type LogRowProps = {
 
 export default function LogRow({ onChange, onRemove, weight = '', reps = '', id, showRemove, weightStep }: LogRowProps) {
   return (
-    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 5, left: Number(showRemove) * -45, backgroundColor: Colors.gray[150], borderRadius: BorderRadius.largest, marginBottom: 8 }}>
+    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', padding: 5, left: Number(showRemove) * -45, backgroundColor: Colors.gray[150], borderRadius: BorderRadius.medium, marginBottom: 8 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 5, justifyContent: 'center' }}>
         <View style={styles.buttonWrapper}>
           <TouchableRipple
@@ -82,7 +82,7 @@ export default function LogRow({ onChange, onRemove, weight = '', reps = '', id,
 
 const styles = StyleSheet.create({
   buttonWrapper: {
-    borderRadius: BorderRadius.largest,
+    borderRadius: BorderRadius.medium,
     overflow: 'hidden'
   },
   sideButton: {
