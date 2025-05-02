@@ -12,7 +12,6 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '@/drizzle/migrations';
 import * as SQLite from 'expo-sqlite';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { DbProvider } from '@/components/DBProvider';
 import { PersistentSnackbarProvider } from '@/components/common/PersistantSnackbarProvider';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -24,7 +23,6 @@ const expo = SQLite.openDatabaseSync('tracky1.db', { enableChangeListener: true 
 const db = drizzle(expo);
 
 export default function StackLayout() {
-  useDrizzleStudio(expo)
   const { success, error } = useMigrations(db, migrations);
 
   db.run('PRAGMA foreign_keys = ON');

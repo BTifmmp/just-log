@@ -1,50 +1,25 @@
-# Welcome to your Expo app 👋
+# Just Log
+**Just Log** is a simple and clean fitness tracking app built to help users log their workouts, visualize progress, and stay consistent. It was developed as a learning project using React Native.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Features
+📈 Interactive Charts – Visualize your workout stats and progress over time 
+🗓️ Workout Logging – Easily log exercises, sets, reps, and weights  
+📚 Workout History – Review past workouts and track long-term trends  
+🔄 Daily Activity Overview – Stay motivated with daily summaries of your logged workouts  
+🧼 Minimal UI – Simple, user-friendly design focused on functionality 
+ 
+## Screenshots
 
-## Get started
+<p float="left">
+  <img src="store/screenshots/activity.png" width="auto" height=350/>
+  <img src="store/screenshots/add_exercise.png" width="auto" height=350/>
+  <img src="store/screenshots/charts.png" width="auto" height=350/>
+</p>
+<p float="left">
+  <img src="store/screenshots/history.png" width="auto" height=350/>
+  <img src="store/screenshots/log_add.png" width="auto" height=350/>
+  <img src="store/screenshots/overview.png" width="auto" height=350/>
+</p>
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Download
+App can be found on google play store https://play.google.com/store/apps/details?id=com.beturapps.just_log
