@@ -6,7 +6,7 @@
 🗓️ Workout Logging – Easily log exercises, sets, reps, and weights<br/>
 📚 Workout History – Review past workouts and track long-term trends<br/>
 🔄 Daily Activity Overview – Stay motivated with daily summaries of your logged workouts<br/>
-🧼 Minimal UI – Simple, user-friendly design focused on functionality   
+🧼 Minimal UI – Simple, user-friendly design focused on functionality
  
 ## Screenshots
 
@@ -16,7 +16,7 @@
   <img src="store/screenshots/charts.png" width="auto" height=350/>
 </p>
 <p float="left">
-  <img src="store/screenshots/history.png" width="auto" height=350/>
+  <img src="store/screenshots/track.png" width="auto" height=350/>
   <img src="store/screenshots/log_add.png" width="auto" height=350/>
   <img src="store/screenshots/overview.png" width="auto" height=350/>
 </p>
