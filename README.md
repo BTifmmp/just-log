@@ -11,14 +11,14 @@
 ## Screenshots
 
 <p float="left">
-  <img src="store/screenshots/new/activity.png" width="auto" height=350/>
-  <img src="store/screenshots/new/add_exercise.png" width="auto" height=350/>
-  <img src="store/screenshots/new/charts.png" width="auto" height=350/>
+  <img src="store/screenshots/new/activity.jpg" width="auto" height=350/>
+  <img src="store/screenshots/new/add_exercise.jpg" width="auto" height=350/>
+  <img src="store/screenshots/new/charts.jpg" width="auto" height=350/>
 </p>
 <p float="left">
-  <img src="store/screenshots/new/track.png" width="auto" height=350/>
-  <img src="store/screenshots/new/log_add.png" width="auto" height=350/>
-  <img src="store/screenshots/new/overview.png" width="auto" height=350/>
+  <img src="store/screenshots/new/track.jpg" width="auto" height=350/>
+  <img src="store/screenshots/new/log_add.jpg" width="auto" height=350/>
+  <img src="store/screenshots/new/overview.jpg" width="auto" height=350/>
 </p>
 
 ## Download
