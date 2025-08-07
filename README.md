@@ -20,6 +20,3 @@
   <img src="store/screenshots/new/log_add.jpg" width="auto" height=350/>
   <img src="store/screenshots/new/overview.jpg" width="auto" height=350/>
 </p>
-
-## Download
-App can be found on google play store https://play.google.com/store/apps/details?id=com.beturapps.just_log
